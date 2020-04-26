@@ -10,4 +10,8 @@ Please see below for installation instructions if you want to host a faucet your
 
 > This software is provided to the public AS-IS with no guarantee. Server hardening and best practice is recommended.
 
-## Overvie
+## Overview
+
+The server is broken up into a few parts to simplify the operation and security. There is extensive setup and configuration that must be completed before this will work, and is no way a simple setup.
+
+The site is built as a static php/HTML site that can be hosted from any modern web server. I c
