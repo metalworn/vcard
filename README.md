@@ -14,4 +14,14 @@ Please see below for installation instructions if you want to host a faucet your
 
 The server is broken up into a few parts to simplify the operation and security. There is extensive setup and configuration that must be completed before this will work, and is no way a simple setup.
 
-The site is built as a static php/HTML site that can be hosted from any modern web server. I c
+The site is built as a static php/HTML site that can be hosted from any modern web server. I chose apache2 as it is most familiar to me. Nginx would be another option.
+
+Installation and configuration of a web server is out of scope for these instructions.
+
+### QRL Node
+
+This is required to transact on the QRL network. You will need to sync a full node.
+
+### Scripting
+
+There are a few scripts that this fauce
