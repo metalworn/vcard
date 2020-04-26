@@ -4,4 +4,10 @@
 
 This is the software running the QRL Faucet hosted over at https://faucet.qrl.tips configured to give away coins once a day to any valid QRL address.
 
-The faucet interfaces with the gRPC 
+The faucet interfaces with the gRPC wallet running on a full node server side. The WalletAPI has been developed to utilize slave transactions by default.
+
+Please see below for installation instructions if you want to host a faucet your self.
+
+> This software is provided to the public AS-IS with no guarantee. Server hardening and best practice is recommended.
+
+## Overvie
