@@ -36,4 +36,6 @@ The `/web/php/` directory contains getInfo.php and main.php.
 
 See below for configuration details.
 
-`/web/php/getInfo.php` is used to gather information from the user that submitted the request for QRL. This grabs the sub
+`/web/php/getInfo.php` is used to gather information from the user that submitted the request for QRL. This grabs the submitted IP address and verifies it has not been submitted within the last 24 hrs. `/web/php/getInfo.php` is called by the `/web/php/main.php` script to validate an IP.
+
+We accept a POST from the website to enter a valid QRL address and hashed IP address into the database with a time
