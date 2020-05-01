@@ -24,4 +24,10 @@ This is required to transact on the QRL network. You will need to sync a full no
 
 ### Scripting
 
-There are a few scripts that this fauce
+There are a few scripts that this faucet relies on. Most live in the `/script` directory however the Web server needs to have access to the php scripts so they live in the web root.
+
+### PHP
+
+The `/web/php/` directory contains getInfo.php and main.php.
+
+`main.php` is the script that the user will `$POST` to. It collects the QRL address, time submitted, IP add
