@@ -30,4 +30,10 @@ There are a few scripts that this faucet relies on. Most live in the `/script` d
 
 The `/web/php/` directory contains getInfo.php and main.php.
 
-`main.php` is the script that the user will `$POST` to. It collects the QRL address, time submitted, IP add
+`main.php` is the script that the user will `$POST` to. It collects the QRL address, time submitted, IP address *(hashed)* and commits it to the mySQL database. 
+
+> At the top of the `main.php` file are user configurable settings that must be configured for the faucet to work.
+
+See below for configuration details.
+
+`/web/php/getInfo.php` is used to gather information from the user that submitted the request for QRL. This grabs the sub
