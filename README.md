@@ -38,4 +38,15 @@ See below for configuration details.
 
 `/web/php/getInfo.php` is used to gather information from the user that submitted the request for QRL. This grabs the submitted IP address and verifies it has not been submitted within the last 24 hrs. `/web/php/getInfo.php` is called by the `/web/php/main.php` script to validate an IP.
 
-We accept a POST from the website to enter a valid QRL address and hashed IP address into the database with a time
+We accept a POST from the website to enter a valid QRL address and hashed IP address into the database with a time stamp.
+
+### Database
+
+MySQL database is used to store and track the faucet operations. Instructions can be found below
+
+
+## Installation
+
+This instruction assumes a clean installation of Ubuntu 16.04. You will want to set this up on a reliable server connected to a stable network connection with a static IP address for simplicity.
+
+1. [
