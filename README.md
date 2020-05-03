@@ -49,4 +49,12 @@ MySQL database is used to store and track the faucet operations. Instructions ca
 
 This instruction assumes a clean installation of Ubuntu 16.04. You will want to set this up on a reliable server connected to a stable network connection with a static IP address for simplicity.
 
-1. [
+1. [Install Packages](#1---install-packages)
+2. [Install Software](#2---install-software)
+   1. [QRL](#qrl)
+   2. [QRL State](#qrl-state)
+   3. [GoLang](#golang)
+   4. [Faucet](#faucet)
+3. [Config](#3---config)
+   1. [Start QRL](#start-qrl)
+   2. [start qrl_walletd](#start-qrl_walletd
