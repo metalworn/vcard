@@ -79,4 +79,16 @@ This instruction assumes a clean installation of Ubuntu 16.04. You will want to 
 - Database
    - Setup Database
    - User and password
-   - Tab
+   - Table and grant privileges
+- Web Server(Apache2)
+   - Certificate
+   - Setup sites available
+   - Move files to web DIR
+   - permissions and owners
+   - apache password for ADMIN site / dashboard
+- Configure Faucet
+   - Script Config
+- Captcha
+   - Coinhive Captcha setup
+- Hardening
+   - Fire
