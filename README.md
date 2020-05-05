@@ -57,4 +57,16 @@ This instruction assumes a clean installation of Ubuntu 16.04. You will want to 
    4. [Faucet](#faucet)
 3. [Config](#3---config)
    1. [Start QRL](#start-qrl)
-   2. [start qrl_walletd](#start-qrl_walletd
+   2. [start qrl_walletd](#start-qrl_walletd)
+   3. [Start The API](#start-the-api)
+   4. [Create Wallet](#create-qrl-wallet)
+   5. [Setup Database](#setup-database)
+   6. [COnfigure The Site](#configure-the-site)
+4. [Automate](#4---sutomate)
+   1. [Cron Job](#cron-job)
+5. [Finish Up](#5---finish-up)
+
+**Basic Install Process Outline**
+
+- Start QRL Node
+   - Fully sy
