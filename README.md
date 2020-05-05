@@ -69,4 +69,14 @@ This instruction assumes a clean installation of Ubuntu 16.04. You will want to 
 **Basic Install Process Outline**
 
 - Start QRL Node
-   - Fully sy
+   - Fully sync the node
+- Wallet setup
+- DNS
+   - Set Hostname and FQDN on server
+   - Cloudflare
+   - CDN Setup
+   - [Mod_Cloudflare Install](https://www.cloudflare.com/technical-resources/#mod_cloudflare) for real IP addresses
+- Database
+   - Setup Database
+   - User and password
+   - Tab
