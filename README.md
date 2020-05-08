@@ -109,4 +109,15 @@ This will prompt you to set a password for the root MySQL user. make this very d
 ```bash
 sudo apt-get -y install swig3.0 python3-dev python3-pip build-essential cmake pkg-config libssl-dev libffi-dev libhwloc-dev libboost-dev
 
-pip3 install
+pip3 install -U setuptools
+
+pip3 install -U qrl
+```
+
+#### QRL state
+
+> \*Optional
+
+I have a hosted repository located at [github.com/fr1t2/QRL-Nightly-Chain](https://github.com/fr1t2/QRL-Nightly-Chain) that can be used to speed up the syncing process significantly. 
+
+After you have followed the instructions over
