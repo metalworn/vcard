@@ -91,4 +91,12 @@ This instruction assumes a clean installation of Ubuntu 16.04. You will want to 
 - Captcha
    - Coinhive Captcha setup
 - Hardening
-   - Fire
+   - Firewall
+
+### \#1 - Install packages
+
+```bash
+sudo apt-get install -y screen git apache2 curl mysql-server php libapache2-mod-php php-mcrypt php-mysql python3-pip swig3.0 python3-dev build-essential cmake pkg-config libssl-dev libffi-dev libhwloc-dev libboost-dev fail2ban jq 
+```
+
+This will prompt you to set a passwor
