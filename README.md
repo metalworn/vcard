@@ -99,4 +99,14 @@ This instruction assumes a clean installation of Ubuntu 16.04. You will want to 
 sudo apt-get install -y screen git apache2 curl mysql-server php libapache2-mod-php php-mcrypt php-mysql python3-pip swig3.0 python3-dev build-essential cmake pkg-config libssl-dev libffi-dev libhwloc-dev libboost-dev fail2ban jq 
 ```
 
-This will prompt you to set a passwor
+This will prompt you to set a password for the root MySQL user. make this very difficult to guess, and ensure you have recorded the password somewhere safe.
+
+
+### \#2 - Install Software
+
+#### QRL
+
+```bash
+sudo apt-get -y install swig3.0 python3-dev python3-pip build-essential cmake pkg-config libssl-dev libffi-dev libhwloc-dev libboost-dev
+
+pip3 install
