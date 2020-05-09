@@ -120,4 +120,12 @@ pip3 install -U qrl
 
 I have a hosted repository located at [github.com/fr1t2/QRL-Nightly-Chain](https://github.com/fr1t2/QRL-Nightly-Chain) that can be used to speed up the syncing process significantly. 
 
-After you have followed the instructions over
+After you have followed the instructions over there start the node and it should sync in a short time.
+
+#### GoLANG
+
+Install instructions from the golang [install instructions](https://golang.org/doc/install)
+
+[Download](https://golang.org/dl/) the Linux archive and extract it into /usr/local, creating a Go tree in /usr/local/go. For example:
+
+`tar -C /us
