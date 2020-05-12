@@ -128,4 +128,12 @@ Install instructions from the golang [install instructions](https://golang.org/d
 
 [Download](https://golang.org/dl/) the Linux archive and extract it into /usr/local, creating a Go tree in /usr/local/go. For example:
 
-`tar -C /us
+`tar -C /usr/local -xzf go$VERSION.$OS-$ARCH.tar.gz` 
+
+(Typically these commands must be run as root or through sudo.)
+
+Add /usr/local/go/bin to the PATH environment variable. You can do this by adding this line to your /etc/profile (for a system-wide installation) or $HOME/.profile:
+
+Setup your GOPATH
+
+`export GOPATH=$HOME/go`
