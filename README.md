@@ -137,3 +137,19 @@ Add /usr/local/go/bin to the PATH environment variable. You can do this by addin
 Setup your GOPATH
 
 `export GOPATH=$HOME/go`
+
+Grab the walletAPI Golang repo
+
+`go get github.com/theQRL/walletd-rest-proxy`
+
+`cd $GOPATH/src/github.com/theQRL/walletd-rest-proxy`
+
+
+`go build`
+ This builds the latest wallet-rest-proxy to interface with the QRL's grpc system.
+
+
+#### Faucet
+
+Grab the latest code for this repository by cloning the faucet
+
