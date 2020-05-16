@@ -153,3 +153,26 @@ Grab the walletAPI Golang repo
 
 Grab the latest code for this repository by cloning the faucet
 
+```bash
+cd ~/ && git clone https://github.com/fr1t2/QRLr-Faucet.git
+```
+This will clone the faucet into your users $HOME directory
+
+### \#3 - Config
+
+
+#### Start QRL 
+
+```bash
+screen -dm start_qrl
+```
+
+#### start qrl_walletd
+
+Start the wallet daemon provided with the QRL package.
+
+```bash
+qrl_walletd
+```
+
+This pro
