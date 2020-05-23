@@ -194,4 +194,18 @@ This will leave the proxy open accepting connections from localhost on port 5359
 Using the walletAPI to create a wallet with slaves, enter the following after you have started the walletAPI
 
 ```bash
-curl -XPOST htt
+curl -XPOST http://127.0.0.1:5359/api/AddNewAddressWithSlaves
+```
+
+This will create a wallet.json file in your .qrl directory with multiple slaves.
+
+Check your address with 
+
+```bash
+curl -XGET http://127.0.0.1:5359/api/ListAddresses
+```
+
+You will want to backup the wallet private seed. 
+
+```bash
+curl -X
