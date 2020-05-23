@@ -184,4 +184,14 @@ Start the API in a screen or background process. You must call out the location 
 ```bash
 cd $GOPATH/src/github.com/theQRL/walletd-rest-proxy
 
-screen -d -m ./walletd-rest-proxy -serverIPPort 127.0.0.1
+screen -d -m ./walletd-rest-proxy -serverIPPort 127.0.0.1:5359 -walletServiceEndpoint 127.0.0.1:19010
+```
+
+This will leave the proxy open accepting connections from localhost on port 5359.
+
+#### Create QRL wallet
+
+Using the walletAPI to create a wallet with slaves, enter the following after you have started the walletAPI
+
+```bash
+curl -XPOST htt
