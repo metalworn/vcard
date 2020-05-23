@@ -208,4 +208,16 @@ curl -XGET http://127.0.0.1:5359/api/ListAddresses
 You will want to backup the wallet private seed. 
 
 ```bash
-curl -X
+curl -XPOST http://127.0.0.1:5359/api/GetRecoverySeeds -d '
+{
+  "address": "YOUR_QRL_ADDRESS_FROM_ABOVE_HERE"
+}'
+```
+
+Save the output some where safe.
+
+#### Setup Database
+
+We need to create the faucet database and add a table to track payments
+
+Connect to the mysql server using the root user and pa
