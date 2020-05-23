@@ -175,4 +175,13 @@ Start the wallet daemon provided with the QRL package.
 qrl_walletd
 ```
 
-This pro
+This process runs in the background.
+
+#### Start the API
+
+Start the API in a screen or background process. You must call out the location of the go install or change to that directory.
+
+```bash
+cd $GOPATH/src/github.com/theQRL/walletd-rest-proxy
+
+screen -d -m ./walletd-rest-proxy -serverIPPort 127.0.0.1
