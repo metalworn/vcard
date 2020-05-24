@@ -220,4 +220,16 @@ Save the output some where safe.
 
 We need to create the faucet database and add a table to track payments
 
-Connect to the mysql server using the root user and pa
+Connect to the mysql server using the root user and password you setup on install.
+
+```bash
+mysql -u root -p
+```
+
+Enter the following to setup a database with the PAYOUT table. 
+
+```sql
+CREATE DATABASE faucet;
+CREATE USER 'qrl'@'localhost' IDENTIFIED BY 'Some_Random_Password_Here';
+GRANT ALL PRIVILEGES ON faucet . * TO 'qrl'@'localhost';
+USE fau
