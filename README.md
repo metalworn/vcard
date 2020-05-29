@@ -244,4 +244,14 @@ exit
 
 The main files are located in the `web` directory. Copy this into the web root of your web server. First clean out any junk that may be in there.
 
-Also move the script folder to a location where the scripts can be found. Make sure this is outside of the web root for security. Don't let apache acce
+Also move the script folder to a location where the scripts can be found. Make sure this is outside of the web root for security. Don't let apache access this folder! 
+
+```bash
+# Remove any old web files that may be in there
+sudo rm -r /var/www/html/*
+# Move all web files over
+sudo cp ~/QRL-Faucet/web/* 
+# change owner to web server
+sudo chown -R www-data:www-data /var/www/html/
+# Copy the script folder into a known location for the scripts to run.
+sudo cp -r ~/QRL-Faucet/script 
