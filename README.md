@@ -232,4 +232,12 @@ Enter the following to setup a database with the PAYOUT table.
 CREATE DATABASE faucet;
 CREATE USER 'qrl'@'localhost' IDENTIFIED BY 'Some_Random_Password_Here';
 GRANT ALL PRIVILEGES ON faucet . * TO 'qrl'@'localhost';
-USE fau
+USE faucet;
+CREATE TABLE PAYOUT  (TX_ID VARCHAR(200), QRL_ADDR VARCHAR(100), IP_ADDR VARCHAR(255), PAYOUT DECIMAL(11,8), DATETIME DATETIME);
+FLUSH PRIVILEGES;
+exit
+```
+
+> **Important**: Record the user and passphrase for the database. Please use a new passphrase that is difficult to guess.
+
+#### Configure t
