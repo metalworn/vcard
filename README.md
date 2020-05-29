@@ -240,4 +240,8 @@ exit
 
 > **Important**: Record the user and passphrase for the database. Please use a new passphrase that is difficult to guess.
 
-#### Configure t
+#### Configure the Site
+
+The main files are located in the `web` directory. Copy this into the web root of your web server. First clean out any junk that may be in there.
+
+Also move the script folder to a location where the scripts can be found. Make sure this is outside of the web root for security. Don't let apache acce
