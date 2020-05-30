@@ -254,4 +254,16 @@ sudo cp ~/QRL-Faucet/web/*
 # change owner to web server
 sudo chown -R www-data:www-data /var/www/html/
 # Copy the script folder into a known location for the scripts to run.
-sudo cp -r ~/QRL-Faucet/script 
+sudo cp -r ~/QRL-Faucet/script /var/www/
+```
+
+With the scripts and web files moved over the last thing is to edit the config files to reflect your installation.
+
+Change the following:
+
+**/var/www/html/php/main.php**
+
+```php
+$payoutInterval = 24; #payout interval in hours before user is valid again
+$SQLservername = "localhost"; # database host
+$SQLuser = "qrl"; # Database 
