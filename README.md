@@ -266,4 +266,13 @@ Change the following:
 ```php
 $payoutInterval = 24; #payout interval in hours before user is valid again
 $SQLservername = "localhost"; # database host
-$SQLuser = "qrl"; # Database 
+$SQLuser = "qrl"; # Database user
+$SQLpassword = "YOUR_PASSWORD_HERE"; # Database password
+$database = "faucet"; # Database Name
+$coinhiveSecret = "YOUR_COINHIVE_SECRET_HERE"; #Coinhive Secret key
+$hashes = 256; # Amount of hashes before valid, must match index.php
+```
+
+**/var/www/script/payout.py**
+
+```pyt
