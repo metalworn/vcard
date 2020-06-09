@@ -275,4 +275,11 @@ $hashes = 256; # Amount of hashes before valid, must match index.php
 
 **/var/www/script/payout.py**
 
-```pyt
+```python
+host = "localhost" # the location of the database
+user = "qrl" # Database user
+passwd = "YOUR_PASSWORD_HERE" #Database password
+database = "faucet" # Name of database
+payoutTime = 1 	# Hours to look back for addresses to pay 
+payNumber = 100 # Maximum number of QRL addresses allowed in a TX
+fee = 10
