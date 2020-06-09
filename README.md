@@ -282,4 +282,16 @@ passwd = "YOUR_PASSWORD_HERE" #Database password
 database = "faucet" # Name of database
 payoutTime = 1 	# Hours to look back for addresses to pay 
 payNumber = 100 # Maximum number of QRL addresses allowed in a TX
-fee = 10
+fee = 10 # Quanta in shor (fee*10^9=quanta)
+amountToPay = 100 # Quanta in shor (amountToPay*10^9=quanta)
+```
+
+**/var/www/index.php**
+
+```php
+data-hashes ="256" # Number of hashes before validation, Must match php/main.php
+data-key ="YOUR_COINHIVE_PUBLIC_KEY_HERE" #Coinhive Public Key
+```
+
+### \#4 - Automate 
+
