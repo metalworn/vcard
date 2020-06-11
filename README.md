@@ -297,4 +297,15 @@ data-key ="YOUR_COINHIVE_PUBLIC_KEY_HERE" #Coinhive Public Key
 
 Setup the faucet server to automatically send transactions when the time matches the settings in the `payout.py` script. This will run the script at that interval and search the database for addresses that match the time, and payout. If these numbers don't match you will payout more than you intend.
 
-*
+**Cron Job**
+
+Edit the cron file with:
+
+```bash
+crontab -e
+```
+
+at the bottom of this file add
+`0 * * * * /home/$USER/QRL-Faucet/script/payout.py`
+
+Change the name and location to suit. The user who's crontab you are editing must have execute rights on that file. To change the schedule of payouts checkout [crontab.guru](https://crontab
