@@ -295,3 +295,6 @@ data-key ="YOUR_COINHIVE_PUBLIC_KEY_HERE" #Coinhive Public Key
 
 ### \#4 - Automate 
 
+Setup the faucet server to automatically send transactions when the time matches the settings in the `payout.py` script. This will run the script at that interval and search the database for addresses that match the time, and payout. If these numbers don't match you will payout more than you intend.
+
+*
