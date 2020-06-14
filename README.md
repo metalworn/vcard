@@ -308,4 +308,10 @@ crontab -e
 at the bottom of this file add
 `0 * * * * /home/$USER/QRL-Faucet/script/payout.py`
 
-Change the name and location to suit. The user who's crontab you are editing must have execute rights on that file. To change the schedule of payouts checkout [crontab.guru](https://crontab
+Change the name and location to suit. The user who's crontab you are editing must have execute rights on that file. To change the schedule of payouts checkout [crontab.guru](https://crontab.guru) for more help with cron.
+
+### \#5 - Finish Up
+
+Fund the address printed in the site by clicking on the QRL symbol on bottom.
+
+Test your faucet out by entering your address and see if you are paid in about an hour. If so you are ready to give away QRL!
