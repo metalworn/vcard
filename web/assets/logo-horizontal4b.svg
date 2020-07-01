@@ -32,3 +32,11 @@
        id="clipPath178">
       <path
          d="M 0,0 H 842 V 595 H 0 Z"
+         id="path176"
+         inkscape:connector-curvature="0" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath156">
+      <path
+         d="m 401.9056,112.3955 c -0.6183,0.7691 -1.3061,1.5383 -2.048,2.3044 0.7419,0.7661 1.4266,1.5384 2.048,2.3045 3.4222,4.2444 4.
