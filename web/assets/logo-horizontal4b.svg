@@ -132,4 +132,12 @@
          transform="matrix(1.0083124,0,0,-1.0083124,-313.74358,203.01183)">
         <g
            id="g136"
-           clip-path="ur
+           clip-path="url(#clipPath140)">
+          <g
+             id="g142"
+             clip-path="url(#clipPath146)">
+            <path
+               d="m 336,77.29208 h 92.9692 v 74.51669 H 336 Z"
+               style="fill:#1d2951;fill-opacity:1;fill-rule:nonzero;stroke:none"
+               id="path148"
+               inkscape
