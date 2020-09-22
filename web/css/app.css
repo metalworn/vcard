@@ -719,3 +719,49 @@ padding-left: 10px;
 }
 
 .QRLblue {
+  color: #1d2951;
+}
+.QRLsilver {
+  color: #d8d8d8;
+}
+.QRLwhite {
+  color: #ffffff;
+}
+.QRLmarmalade {
+  color: #eaa221;
+}
+
+
+.button.marmalade {
+    background-color: #eaa221;
+    color: #ffffff; }
+    .button.marmalade:hover, .button.marmalade:focus {
+      background-color: #c78511;
+      color: #ffffff; }
+
+  .button.disabled, .button[disabled] {
+    opacity: 0.25;
+    cursor: not-allowed; }
+    .button.disabled, .button.disabled:hover, .button.disabled:focus, .button[disabled], .button[disabled]:hover, .button[disabled]:focus {
+      background-color: #eaa221;
+      color: #ffffff; }
+
+
+.close-button {
+  position: absolute;
+  color: #ffffff;
+  cursor: pointer; }
+  [data-whatinput='mouse'] .close-button {
+    outline: 0; }
+  .close-button:hover, .close-button:focus {
+    color: #a50b5e; }
+  .close-button.small {
+    right: 0.66rem;
+    top: 0.33em;
+    font-size: 1.5em;
+    line-height: 1; }
+  .close-button, .close-button.medium {
+    right: 1rem;
+    top: 0.5rem;
+    font-size: 2em;
+    line-height: 1; } 
