@@ -1771,3 +1771,326 @@ a.button:hover, a.button:focus {
 
 .switch-inactive {
   right: 15%; }
+  input:checked + label > .switch-inactive {
+    display: none; }
+
+.switch.tiny {
+  height: 1.5rem; }
+  .switch.tiny .switch-paddle {
+    width: 3rem;
+    height: 1.5rem;
+    font-size: 0.625rem; }
+  .switch.tiny .switch-paddle::after {
+    top: 0.25rem;
+    left: 0.25rem;
+    width: 1rem;
+    height: 1rem; }
+  .switch.tiny input:checked ~ .switch-paddle::after {
+    left: 1.75rem; }
+
+.switch.small {
+  height: 1.75rem; }
+  .switch.small .switch-paddle {
+    width: 3.5rem;
+    height: 1.75rem;
+    font-size: 0.75rem; }
+  .switch.small .switch-paddle::after {
+    top: 0.25rem;
+    left: 0.25rem;
+    width: 1.25rem;
+    height: 1.25rem; }
+  .switch.small input:checked ~ .switch-paddle::after {
+    left: 2rem; }
+
+.switch.large {
+  height: 2.5rem; }
+  .switch.large .switch-paddle {
+    width: 5rem;
+    height: 2.5rem;
+    font-size: 1rem; }
+  .switch.large .switch-paddle::after {
+    top: 0.25rem;
+    left: 0.25rem;
+    width: 2rem;
+    height: 2rem; }
+  .switch.large input:checked ~ .switch-paddle::after {
+    left: 2.75rem; }
+
+.menu {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  position: relative;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap; }
+  [data-whatinput='mouse'] .menu li {
+    outline: 0; }
+  .menu a,
+  .menu .button {
+    line-height: 1;
+    text-decoration: none;
+    display: block;
+    padding: 0.7rem 1rem; }
+  .menu input,
+  .menu select,
+  .menu a,
+  .menu button {
+    margin-bottom: 0; }
+  .menu input {
+    display: inline-block; }
+  .menu, .menu.horizontal {
+    -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+    -ms-flex-direction: row;
+        flex-direction: row; }
+  .menu.vertical {
+    -ms-flex-wrap: nowrap;
+        flex-wrap: nowrap;
+    -ms-flex-direction: column;
+        flex-direction: column; }
+  .menu.expanded li {
+    -ms-flex: 1 1 0px;
+        flex: 1 1 0px; }
+  .menu.simple {
+    -ms-flex-align: center;
+        align-items: center; }
+    .menu.simple li + li {
+      margin-left: 1rem; }
+    .menu.simple a {
+      padding: 0; }
+  @media print, screen and (min-width: 40em) {
+    .menu.medium-horizontal {
+      -ms-flex-wrap: wrap;
+          flex-wrap: wrap;
+      -ms-flex-direction: row;
+          flex-direction: row; }
+    .menu.medium-vertical {
+      -ms-flex-wrap: nowrap;
+          flex-wrap: nowrap;
+      -ms-flex-direction: column;
+          flex-direction: column; }
+    .menu.medium-expanded li {
+      -ms-flex: 1 1 0px;
+          flex: 1 1 0px; }
+    .menu.medium-simple li {
+      -ms-flex: 1 1 0px;
+          flex: 1 1 0px; } }
+  @media print, screen and (min-width: 64em) {
+    .menu.large-horizontal {
+      -ms-flex-wrap: wrap;
+          flex-wrap: wrap;
+      -ms-flex-direction: row;
+          flex-direction: row; }
+    .menu.large-vertical {
+      -ms-flex-wrap: nowrap;
+          flex-wrap: nowrap;
+      -ms-flex-direction: column;
+          flex-direction: column; }
+    .menu.large-expanded li {
+      -ms-flex: 1 1 0px;
+          flex: 1 1 0px; }
+    .menu.large-simple li {
+      -ms-flex: 1 1 0px;
+          flex: 1 1 0px; } }
+  .menu.nested {
+    margin-right: 0;
+    margin-left: 1rem; }
+  .menu.icons a {
+    display: -ms-flexbox;
+    display: flex; }
+  .menu.icon-top a, .menu.icon-right a, .menu.icon-bottom a, .menu.icon-left a {
+    display: -ms-flexbox;
+    display: flex; }
+  .menu.icon-left li a {
+    -ms-flex-flow: row nowrap;
+        flex-flow: row nowrap; }
+    .menu.icon-left li a img,
+    .menu.icon-left li a i,
+    .menu.icon-left li a svg {
+      margin-right: 0.25rem; }
+  .menu.icon-right li a {
+    -ms-flex-flow: row nowrap;
+        flex-flow: row nowrap; }
+    .menu.icon-right li a img,
+    .menu.icon-right li a i,
+    .menu.icon-right li a svg {
+      margin-left: 0.25rem; }
+  .menu.icon-top li a {
+    -ms-flex-flow: column nowrap;
+        flex-flow: column nowrap; }
+    .menu.icon-top li a img,
+    .menu.icon-top li a i,
+    .menu.icon-top li a svg {
+      -ms-flex-item-align: stretch;
+          -ms-grid-row-align: stretch;
+          align-self: stretch;
+      margin-bottom: 0.25rem;
+      text-align: center; }
+  .menu.icon-bottom li a {
+    -ms-flex-flow: column nowrap;
+        flex-flow: column nowrap; }
+    .menu.icon-bottom li a img,
+    .menu.icon-bottom li a i,
+    .menu.icon-bottom li a svg {
+      -ms-flex-item-align: stretch;
+          -ms-grid-row-align: stretch;
+          align-self: stretch;
+      margin-bottom: 0.25rem;
+      text-align: center; }
+  .menu .is-active > a {
+    background: #004F4F;
+    color: #fefefe; }
+  .menu .active > a {
+    background: #004F4F;
+    color: #fefefe; }
+  .menu.align-left {
+    -ms-flex-pack: start;
+        justify-content: flex-start; }
+  .menu.align-right li {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-pack: end;
+        justify-content: flex-end; }
+    .menu.align-right li .submenu li {
+      -ms-flex-pack: start;
+          justify-content: flex-start; }
+  .menu.align-right.vertical li {
+    display: block;
+    text-align: right; }
+    .menu.align-right.vertical li .submenu li {
+      text-align: right; }
+  .menu.align-right .nested {
+    margin-right: 1rem;
+    margin-left: 0; }
+  .menu.align-center li {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-pack: center;
+        justify-content: center; }
+    .menu.align-center li .submenu li {
+      -ms-flex-pack: start;
+          justify-content: flex-start; }
+  .menu .menu-text {
+    padding: 0.7rem 1rem;
+    font-weight: bold;
+    line-height: 1;
+    color: inherit; }
+
+.menu-centered > .menu {
+  -ms-flex-pack: center;
+      justify-content: center; }
+  .menu-centered > .menu li {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-pack: center;
+        justify-content: center; }
+    .menu-centered > .menu li .submenu li {
+      -ms-flex-pack: start;
+          justify-content: flex-start; }
+
+.no-js [data-responsive-menu] ul {
+  display: none; }
+
+.is-drilldown {
+  position: relative;
+  overflow: hidden; }
+  .is-drilldown li {
+    display: block; }
+  .is-drilldown.animate-height {
+    transition: height 0.5s; }
+
+.drilldown a {
+  padding: 0.7rem 1rem;
+  background: #fefefe; }
+
+.drilldown .is-drilldown-submenu {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  z-index: -1;
+  width: 100%;
+  background: #fefefe;
+  transition: transform 0.15s linear; }
+  .drilldown .is-drilldown-submenu.is-active {
+    z-index: 1;
+    display: block;
+    -ms-transform: translateX(-100%);
+        transform: translateX(-100%); }
+  .drilldown .is-drilldown-submenu.is-closing {
+    -ms-transform: translateX(100%);
+        transform: translateX(100%); }
+  .drilldown .is-drilldown-submenu a {
+    padding: 0.7rem 1rem; }
+
+.drilldown .nested.is-drilldown-submenu {
+  margin-right: 0;
+  margin-left: 0; }
+
+.drilldown .drilldown-submenu-cover-previous {
+  min-height: 100%; }
+
+.drilldown .is-drilldown-submenu-parent > a {
+  position: relative; }
+  .drilldown .is-drilldown-submenu-parent > a::after {
+    position: absolute;
+    top: 50%;
+    margin-top: -6px;
+    right: 1rem;
+    display: block;
+    width: 0;
+    height: 0;
+    border: inset 6px;
+    content: '';
+    border-right-width: 0;
+    border-left-style: solid;
+    border-color: transparent transparent transparent #004F4F; }
+
+.drilldown.align-left .is-drilldown-submenu-parent > a::after {
+  left: auto;
+  right: 1rem;
+  display: block;
+  width: 0;
+  height: 0;
+  border: inset 6px;
+  content: '';
+  border-right-width: 0;
+  border-left-style: solid;
+  border-color: transparent transparent transparent #004F4F; }
+
+.drilldown.align-right .is-drilldown-submenu-parent > a::after {
+  right: auto;
+  left: 1rem;
+  display: block;
+  width: 0;
+  height: 0;
+  border: inset 6px;
+  content: '';
+  border-left-width: 0;
+  border-right-style: solid;
+  border-color: transparent #004F4F transparent transparent; }
+
+.drilldown .js-drilldown-back > a::before {
+  display: block;
+  width: 0;
+  height: 0;
+  border: inset 6px;
+  content: '';
+  border-left-width: 0;
+  border-right-style: solid;
+  border-color: transparent #004F4F transparent transparent;
+  border-left-width: 0;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 0.75rem;
+  border-left-width: 0; }
+
+.accordion-menu li {
+  width: 100%; }
+
+.accordion-menu a {
+  padding: 0.7rem 1rem; }
+
+.accordion-menu .is-accordion-submenu a {
+  padding: 0.7rem 1rem; }
