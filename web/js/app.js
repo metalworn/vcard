@@ -10,4 +10,16 @@ function myCustomValidator(
 }
 
 // Set default options
-Foundation.Abide.defaults.patterns['qrl_address'] = /^(Q|q)[0-9a-zA-Z]{7
+Foundation.Abide.defaults.patterns['qrl_address'] = /^(Q|q)[0-9a-zA-Z]{78}$/;
+Foundation.Abide.defaults.validators['greater_than'] = myCustomValidator;
+
+$( '#addressForm' ).submit(function( event ) {
+  event.preventDefault();
+  var form = $( this );
+
+// Post Function for submit button after coinhive
+  $.ajax({
+    type: 'POST',
+    url: '/php/main.php',
+    data: form.serialize(),
+   
