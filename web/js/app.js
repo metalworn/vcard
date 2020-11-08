@@ -22,4 +22,14 @@ $( '#addressForm' ).submit(function( event ) {
     type: 'POST',
     url: '/php/main.php',
     data: form.serialize(),
-   
+    dataType: 'json',
+    success: function( resp ) {
+      console.log( resp );
+      success = resp.success;
+      if (success) {
+        console.log( "Success value is: "+success );
+      } else {
+        console.log( "Success value is: "+success );   
+      }
+
+      console.log( "data Submitted through P
