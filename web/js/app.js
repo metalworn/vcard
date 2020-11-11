@@ -32,4 +32,11 @@ $( '#addressForm' ).submit(function( event ) {
         console.log( "Success value is: "+success );   
       }
 
-      console.log( "data Submitted through P
+      console.log( "data Submitted through POST" );
+  //alert the user of the goings on here...
+      if (success === true) {
+        document.getElementById("CoinhiveDiv").innerHTML = 
+        "<div class='callout success'>" + 
+        "<h1>SUCCESS!</h1>"+
+        "<h5>Your Address Has Been Submitted!</h5>"+
+        "<p>You will receive a paymen
