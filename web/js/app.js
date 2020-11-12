@@ -46,4 +46,16 @@ $( '#addressForm' ).submit(function( event ) {
        document.getElementById("CoinhiveDiv").innerHTML = 
         "<div class='callout alert'>" + 
         "<h3>Sorry, No Dice For You</h3>" +
-        "<p>You've been here recently... </p><p>" + resp.DATETIME + " 
+        "<p>You've been here recently... </p><p>" + resp.DATETIME + " UTC</p>"+
+        "<p>Come back later ;-)</p>" +
+        "</div>"; 
+      }
+      //$("#addressForm")[0].reset();
+    }
+  });
+});
+
+var idleTime = 0;
+$(document).ready(function () {
+    //Increment the idle time counter every minute.
+    var idleInterval = setInterval(timerIncrement,
