@@ -39,4 +39,11 @@ $( '#addressForm' ).submit(function( event ) {
         "<div class='callout success'>" + 
         "<h1>SUCCESS!</h1>"+
         "<h5>Your Address Has Been Submitted!</h5>"+
-        "<p>You will receive a paymen
+        "<p>You will receive a payment in the next few hours...</p>"+
+        "</div>";
+        }
+      else {
+       document.getElementById("CoinhiveDiv").innerHTML = 
+        "<div class='callout alert'>" + 
+        "<h3>Sorry, No Dice For You</h3>" +
+        "<p>You've been here recently... </p><p>" + resp.DATETIME + " 
