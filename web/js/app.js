@@ -71,4 +71,10 @@ $(document).ready(function () {
 
 function timerIncrement() {
     idleTime = idleTime + 1;
-    if (idleTime >
+    if (idleTime > 9) { // 20 minutes
+        window.location.reload();
+    }
+}
+
+// Initialize Foundation
+$(document).foundation();
