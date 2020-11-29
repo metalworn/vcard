@@ -1077,3 +1077,305 @@ function OverlapArea(element, parent, lrOnly, tbOnly, ignoreBottom) {
     var parDims = GetDimensions(parent);
 
     bottomOver = parDims.height + parDims.offset.top - (eleDims.offset.top + eleDims.height);
+    topOver = eleDims.offset.top - parDims.offset.top;
+    leftOver = eleDims.offset.left - parDims.offset.left;
+    rightOver = parDims.width + parDims.offset.left - (eleDims.offset.left + eleDims.width);
+  } else {
+    bottomOver = eleDims.windowDims.height + eleDims.windowDims.offset.top - (eleDims.offset.top + eleDims.height);
+    topOver = eleDims.offset.top - eleDims.windowDims.offset.top;
+    leftOver = eleDims.offset.left - eleDims.windowDims.offset.left;
+    rightOver = eleDims.windowDims.width - (eleDims.offset.left + eleDims.width);
+  }
+
+  bottomOver = ignoreBottom ? 0 : Math.min(bottomOver, 0);
+  topOver = Math.min(topOver, 0);
+  leftOver = Math.min(leftOver, 0);
+  rightOver = Math.min(rightOver, 0);
+
+  if (lrOnly) {
+    return leftOver + rightOver;
+  }
+  if (tbOnly) {
+    return topOver + bottomOver;
+  }
+
+  // use sum of squares b/c we care about overlap area.
+  return Math.sqrt(topOver * topOver + bottomOver * bottomOver + leftOver * leftOver + rightOver * rightOver);
+}
+
+/**
+ * Uses native methods to return an object of dimension values.
+ * @function
+ * @param {jQuery || HTML} element - jQuery object or DOM element for which to get the dimensions. Can be any element other that document or window.
+ * @returns {Object} - nested object of integer pixel values
+ * TODO - if element is window, return only those values.
+ */
+function GetDimensions(elem) {
+  elem = elem.length ? elem[0] : elem;
+
+  if (elem === window || elem === document) {
+    throw new Error("I'm sorry, Dave. I'm afraid I can't do that.");
+  }
+
+  var rect = elem.getBoundingClientRect(),
+      parRect = elem.parentNode.getBoundingClientRect(),
+      winRect = document.body.getBoundingClientRect(),
+      winY = window.pageYOffset,
+      winX = window.pageXOffset;
+
+  return {
+    width: rect.width,
+    height: rect.height,
+    offset: {
+      top: rect.top + winY,
+      left: rect.left + winX
+    },
+    parentDims: {
+      width: parRect.width,
+      height: parRect.height,
+      offset: {
+        top: parRect.top + winY,
+        left: parRect.left + winX
+      }
+    },
+    windowDims: {
+      width: winRect.width,
+      height: winRect.height,
+      offset: {
+        top: winY,
+        left: winX
+      }
+    }
+  };
+}
+
+/**
+ * Returns an object of top and left integer pixel values for dynamically rendered elements,
+ * such as: Tooltip, Reveal, and Dropdown. Maintained for backwards compatibility, and where
+ * you don't know alignment, but generally from
+ * 6.4 forward you should use GetExplicitOffsets, as GetOffsets conflates position and alignment.
+ * @function
+ * @param {jQuery} element - jQuery object for the element being positioned.
+ * @param {jQuery} anchor - jQuery object for the element's anchor point.
+ * @param {String} position - a string relating to the desired position of the element, relative to it's anchor
+ * @param {Number} vOffset - integer pixel value of desired vertical separation between anchor and element.
+ * @param {Number} hOffset - integer pixel value of desired horizontal separation between anchor and element.
+ * @param {Boolean} isOverflow - if a collision event is detected, sets to true to default the element to full width - any desired offset.
+ * TODO alter/rewrite to work with `em` values as well/instead of pixels
+ */
+function GetOffsets(element, anchor, position, vOffset, hOffset, isOverflow) {
+  console.log("NOTE: GetOffsets is deprecated in favor of GetExplicitOffsets and will be removed in 6.5");
+  switch (position) {
+    case 'top':
+      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__foundation_util_core__["c" /* rtl */])() ? GetExplicitOffsets(element, anchor, 'top', 'left', vOffset, hOffset, isOverflow) : GetExplicitOffsets(element, anchor, 'top', 'right', vOffset, hOffset, isOverflow);
+    case 'bottom':
+      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__foundation_util_core__["c" /* rtl */])() ? GetExplicitOffsets(element, anchor, 'bottom', 'left', vOffset, hOffset, isOverflow) : GetExplicitOffsets(element, anchor, 'bottom', 'right', vOffset, hOffset, isOverflow);
+    case 'center top':
+      return GetExplicitOffsets(element, anchor, 'top', 'center', vOffset, hOffset, isOverflow);
+    case 'center bottom':
+      return GetExplicitOffsets(element, anchor, 'bottom', 'center', vOffset, hOffset, isOverflow);
+    case 'center left':
+      return GetExplicitOffsets(element, anchor, 'left', 'center', vOffset, hOffset, isOverflow);
+    case 'center right':
+      return GetExplicitOffsets(element, anchor, 'right', 'center', vOffset, hOffset, isOverflow);
+    case 'left bottom':
+      return GetExplicitOffsets(element, anchor, 'bottom', 'left', vOffset, hOffset, isOverflow);
+    case 'right bottom':
+      return GetExplicitOffsets(element, anchor, 'bottom', 'right', vOffset, hOffset, isOverflow);
+    // Backwards compatibility... this along with the reveal and reveal full
+    // classes are the only ones that didn't reference anchor
+    case 'center':
+      return {
+        left: $eleDims.windowDims.offset.left + $eleDims.windowDims.width / 2 - $eleDims.width / 2 + hOffset,
+        top: $eleDims.windowDims.offset.top + $eleDims.windowDims.height / 2 - ($eleDims.height / 2 + vOffset)
+      };
+    case 'reveal':
+      return {
+        left: ($eleDims.windowDims.width - $eleDims.width) / 2 + hOffset,
+        top: $eleDims.windowDims.offset.top + vOffset
+      };
+    case 'reveal full':
+      return {
+        left: $eleDims.windowDims.offset.left,
+        top: $eleDims.windowDims.offset.top
+      };
+      break;
+    default:
+      return {
+        left: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__foundation_util_core__["c" /* rtl */])() ? $anchorDims.offset.left - $eleDims.width + $anchorDims.width - hOffset : $anchorDims.offset.left + hOffset,
+        top: $anchorDims.offset.top + $anchorDims.height + vOffset
+      };
+
+  }
+}
+
+function GetExplicitOffsets(element, anchor, position, alignment, vOffset, hOffset, isOverflow) {
+  var $eleDims = GetDimensions(element),
+      $anchorDims = anchor ? GetDimensions(anchor) : null;
+
+  var topVal, leftVal;
+
+  // set position related attribute
+
+  switch (position) {
+    case 'top':
+      topVal = $anchorDims.offset.top - ($eleDims.height + vOffset);
+      break;
+    case 'bottom':
+      topVal = $anchorDims.offset.top + $anchorDims.height + vOffset;
+      break;
+    case 'left':
+      leftVal = $anchorDims.offset.left - ($eleDims.width + hOffset);
+      break;
+    case 'right':
+      leftVal = $anchorDims.offset.left + $anchorDims.width + hOffset;
+      break;
+  }
+
+  // set alignment related attribute
+  switch (position) {
+    case 'top':
+    case 'bottom':
+      switch (alignment) {
+        case 'left':
+          leftVal = $anchorDims.offset.left + hOffset;
+          break;
+        case 'right':
+          leftVal = $anchorDims.offset.left - $eleDims.width + $anchorDims.width - hOffset;
+          break;
+        case 'center':
+          leftVal = isOverflow ? hOffset : $anchorDims.offset.left + $anchorDims.width / 2 - $eleDims.width / 2 + hOffset;
+          break;
+      }
+      break;
+    case 'right':
+    case 'left':
+      switch (alignment) {
+        case 'bottom':
+          topVal = $anchorDims.offset.top - vOffset + $anchorDims.height - $eleDims.height;
+          break;
+        case 'top':
+          topVal = $anchorDims.offset.top + vOffset;
+          break;
+        case 'center':
+          topVal = $anchorDims.offset.top + vOffset + $anchorDims.height / 2 - $eleDims.height / 2;
+          break;
+      }
+      break;
+  }
+  return { top: topVal, left: leftVal };
+}
+
+
+
+/***/ }),
+/* 8 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return onImagesLoaded; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
+
+
+
+
+/**
+ * Runs a callback function when images are fully loaded.
+ * @param {Object} images - Image(s) to check if loaded.
+ * @param {Func} callback - Function to execute when image is fully loaded.
+ */
+function onImagesLoaded(images, callback) {
+  var self = this,
+      unloaded = images.length;
+
+  if (unloaded === 0) {
+    callback();
+  }
+
+  images.each(function () {
+    // Check if image is loaded
+    if (this.complete && this.naturalWidth !== undefined) {
+      singleImageLoaded();
+    } else {
+      // If the above check failed, simulate loading on detached element.
+      var image = new Image();
+      // Still count image as loaded if it finalizes with an error.
+      var events = "load.zf.images error.zf.images";
+      __WEBPACK_IMPORTED_MODULE_0_jquery___default()(image).one(events, function me(event) {
+        // Unbind the event listeners. We're using 'one' but only one of the two events will have fired.
+        __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this).off(events, me);
+        singleImageLoaded();
+      });
+      image.src = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this).attr('src');
+    }
+  });
+
+  function singleImageLoaded() {
+    unloaded--;
+    if (unloaded === 0) {
+      callback();
+    }
+  }
+}
+
+
+
+/***/ }),
+/* 9 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Nest; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
+
+
+
+
+var Nest = {
+  Feather: function (menu) {
+    var type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'zf';
+
+    menu.attr('role', 'menubar');
+
+    var items = menu.find('li').attr({ 'role': 'menuitem' }),
+        subMenuClass = 'is-' + type + '-submenu',
+        subItemClass = subMenuClass + '-item',
+        hasSubClass = 'is-' + type + '-submenu-parent',
+        applyAria = type !== 'accordion'; // Accordions handle their own ARIA attriutes.
+
+    items.each(function () {
+      var $item = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this),
+          $sub = $item.children('ul');
+
+      if ($sub.length) {
+        $item.addClass(hasSubClass);
+        $sub.addClass('submenu ' + subMenuClass).attr({ 'data-submenu': '' });
+        if (applyAria) {
+          $item.attr({
+            'aria-haspopup': true,
+            'aria-label': $item.children('a:first').text()
+          });
+          // Note:  Drilldowns behave differently in how they hide, and so need
+          // additional attributes.  We should look if this possibly over-generalized
+          // utility (Nest) is appropriate when we rework menus in 6.4
+          if (type === 'drilldown') {
+            $item.attr({ 'aria-expanded': false });
+          }
+        }
+        $sub.addClass('submenu ' + subMenuClass).attr({
+          'data-submenu': '',
+          'role': 'menu'
+        });
+        if (type === 'drilldown') {
+          $sub.attr({ 'aria-hidden': true });
+        }
+      }
+
+      if ($item.parent('[data-submenu]').length) {
+        $item.addClass('is-submenu-item ' + subItemClass);
+      }
+    });
+
+    return;
