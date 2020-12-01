@@ -1705,3 +1705,292 @@ var Accordion = function (_Plugin) {
       this.$element.find('[data-tab-content]').stop(true).slideUp(0).css('display', '');
       this.$element.find('a').off('.zf.accordion');
       if (this.options.deepLink) {
+        __WEBPACK_IMPORTED_MODULE_0_jquery___default()(window).off('popstate', this._checkDeepLink);
+      }
+    }
+  }]);
+
+  return Accordion;
+}(__WEBPACK_IMPORTED_MODULE_3__foundation_plugin__["a" /* Plugin */]);
+
+Accordion.defaults = {
+  /**
+   * Amount of time to animate the opening of an accordion pane.
+   * @option
+   * @type {number}
+   * @default 250
+   */
+  slideSpeed: 250,
+  /**
+   * Allow the accordion to have multiple open panes.
+   * @option
+   * @type {boolean}
+   * @default false
+   */
+  multiExpand: false,
+  /**
+   * Allow the accordion to close all panes.
+   * @option
+   * @type {boolean}
+   * @default false
+   */
+  allowAllClosed: false,
+  /**
+   * Allows the window to scroll to content of pane specified by hash anchor
+   * @option
+   * @type {boolean}
+   * @default false
+   */
+  deepLink: false,
+
+  /**
+   * Adjust the deep link scroll to make sure the top of the accordion panel is visible
+   * @option
+   * @type {boolean}
+   * @default false
+   */
+  deepLinkSmudge: false,
+
+  /**
+   * Animation time (ms) for the deep link adjustment
+   * @option
+   * @type {number}
+   * @default 300
+   */
+  deepLinkSmudgeDelay: 300,
+
+  /**
+   * Update the browser history with the open accordion
+   * @option
+   * @type {boolean}
+   * @default false
+   */
+  updateHistory: false
+};
+
+
+
+/***/ }),
+/* 11 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return AccordionMenu; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_nest__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__foundation_util_core__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__foundation_plugin__ = __webpack_require__(2);
+
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+
+
+
+
+
+
+/**
+ * AccordionMenu module.
+ * @module foundation.accordionMenu
+ * @requires foundation.util.keyboard
+ * @requires foundation.util.nest
+ */
+
+var AccordionMenu = function (_Plugin) {
+  _inherits(AccordionMenu, _Plugin);
+
+  function AccordionMenu() {
+    _classCallCheck(this, AccordionMenu);
+
+    return _possibleConstructorReturn(this, (AccordionMenu.__proto__ || Object.getPrototypeOf(AccordionMenu)).apply(this, arguments));
+  }
+
+  _createClass(AccordionMenu, [{
+    key: '_setup',
+
+    /**
+     * Creates a new instance of an accordion menu.
+     * @class
+     * @name AccordionMenu
+     * @fires AccordionMenu#init
+     * @param {jQuery} element - jQuery object to make into an accordion menu.
+     * @param {Object} options - Overrides to the default plugin settings.
+     */
+    value: function _setup(element, options) {
+      this.$element = element;
+      this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, AccordionMenu.defaults, this.$element.data(), options);
+      this.className = 'AccordionMenu'; // ie9 back compat
+
+      this._init();
+
+      __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__["a" /* Keyboard */].register('AccordionMenu', {
+        'ENTER': 'toggle',
+        'SPACE': 'toggle',
+        'ARROW_RIGHT': 'open',
+        'ARROW_UP': 'up',
+        'ARROW_DOWN': 'down',
+        'ARROW_LEFT': 'close',
+        'ESCAPE': 'closeAll'
+      });
+    }
+
+    /**
+     * Initializes the accordion menu by hiding all nested menus.
+     * @private
+     */
+
+  }, {
+    key: '_init',
+    value: function _init() {
+      __WEBPACK_IMPORTED_MODULE_2__foundation_util_nest__["a" /* Nest */].Feather(this.$element, 'accordion');
+
+      var _this = this;
+
+      this.$element.find('[data-submenu]').not('.is-active').slideUp(0); //.find('a').css('padding-left', '1rem');
+      this.$element.attr({
+        'role': 'tree',
+        'aria-multiselectable': this.options.multiOpen
+      });
+
+      this.$menuLinks = this.$element.find('.is-accordion-submenu-parent');
+      this.$menuLinks.each(function () {
+        var linkId = this.id || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["a" /* GetYoDigits */])(6, 'acc-menu-link'),
+            $elem = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this),
+            $sub = $elem.children('[data-submenu]'),
+            subId = $sub[0].id || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["a" /* GetYoDigits */])(6, 'acc-menu'),
+            isActive = $sub.hasClass('is-active');
+
+        if (_this.options.submenuToggle) {
+          $elem.addClass('has-submenu-toggle');
+          $elem.children('a').after('<button id="' + linkId + '" class="submenu-toggle" aria-controls="' + subId + '" aria-expanded="' + isActive + '" title="' + _this.options.submenuToggleText + '"><span class="submenu-toggle-text">' + _this.options.submenuToggleText + '</span></button>');
+        } else {
+          $elem.attr({
+            'aria-controls': subId,
+            'aria-expanded': isActive,
+            'id': linkId
+          });
+        }
+        $sub.attr({
+          'aria-labelledby': linkId,
+          'aria-hidden': !isActive,
+          'role': 'group',
+          'id': subId
+        });
+      });
+      this.$element.find('li').attr({
+        'role': 'treeitem'
+      });
+      var initPanes = this.$element.find('.is-active');
+      if (initPanes.length) {
+        var _this = this;
+        initPanes.each(function () {
+          _this.down(__WEBPACK_IMPORTED_MODULE_0_jquery___default()(this));
+        });
+      }
+      this._events();
+    }
+
+    /**
+     * Adds event handlers for items within the menu.
+     * @private
+     */
+
+  }, {
+    key: '_events',
+    value: function _events() {
+      var _this = this;
+
+      this.$element.find('li').each(function () {
+        var $submenu = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this).children('[data-submenu]');
+
+        if ($submenu.length) {
+          if (_this.options.submenuToggle) {
+            __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this).children('.submenu-toggle').off('click.zf.accordionMenu').on('click.zf.accordionMenu', function (e) {
+              _this.toggle($submenu);
+            });
+          } else {
+            __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this).children('a').off('click.zf.accordionMenu').on('click.zf.accordionMenu', function (e) {
+              e.preventDefault();
+              _this.toggle($submenu);
+            });
+          }
+        }
+      }).on('keydown.zf.accordionmenu', function (e) {
+        var $element = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this),
+            $elements = $element.parent('ul').children('li'),
+            $prevElement,
+            $nextElement,
+            $target = $element.children('[data-submenu]');
+
+        $elements.each(function (i) {
+          if (__WEBPACK_IMPORTED_MODULE_0_jquery___default()(this).is($element)) {
+            $prevElement = $elements.eq(Math.max(0, i - 1)).find('a').first();
+            $nextElement = $elements.eq(Math.min(i + 1, $elements.length - 1)).find('a').first();
+
+            if (__WEBPACK_IMPORTED_MODULE_0_jquery___default()(this).children('[data-submenu]:visible').length) {
+              // has open sub menu
+              $nextElement = $element.find('li:first-child').find('a').first();
+            }
+            if (__WEBPACK_IMPORTED_MODULE_0_jquery___default()(this).is(':first-child')) {
+              // is first element of sub menu
+              $prevElement = $element.parents('li').first().find('a').first();
+            } else if ($prevElement.parents('li').first().children('[data-submenu]:visible').length) {
+              // if previous element has open sub menu
+              $prevElement = $prevElement.parents('li').find('li:last-child').find('a').first();
+            }
+            if (__WEBPACK_IMPORTED_MODULE_0_jquery___default()(this).is(':last-child')) {
+              // is last element of sub menu
+              $nextElement = $element.parents('li').first().next('li').find('a').first();
+            }
+
+            return;
+          }
+        });
+
+        __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__["a" /* Keyboard */].handleKey(e, 'AccordionMenu', {
+          open: function () {
+            if ($target.is(':hidden')) {
+              _this.down($target);
+              $target.find('li').first().find('a').first().focus();
+            }
+          },
+          close: function () {
+            if ($target.length && !$target.is(':hidden')) {
+              // close active sub of this item
+              _this.up($target);
+            } else if ($element.parent('[data-submenu]').length) {
+              // close currently open sub
+              _this.up($element.parent('[data-submenu]'));
+              $element.parents('li').first().find('a').first().focus();
+            }
+          },
+          up: function () {
+            $prevElement.focus();
+            return true;
+          },
+          down: function () {
+            $nextElement.focus();
+            return true;
+          },
+          toggle: function () {
+            if (_this.options.submenuToggle) {
+              return false;
+            }
+            if ($element.children('[data-submenu]').length) {
+              _this.toggle($element.children('[data-submenu]'));
+              return true;
+            }
+          },
+          closeAll: function () {
+            _this.hideAll();
+          },
+          handled: function (preventDefault) {
