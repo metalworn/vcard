@@ -2579,3 +2579,325 @@ var Drilldown = function (_Plugin) {
     }
   }, {
     key: '_hide',
+
+
+    /**
+     * Hides a submenu
+     * @function
+     * @fires Drilldown#hide
+     * @param {jQuery} $elem - the current sub-menu to hide, i.e. the `ul` tag.
+     */
+    value: function _hide($elem) {
+      if (this.options.autoHeight) this.$wrapper.css({ height: $elem.parent().closest('ul').data('calcHeight') });
+      var _this = this;
+      $elem.parent('li').attr('aria-expanded', false);
+      $elem.attr('aria-hidden', true).addClass('is-closing');
+      $elem.addClass('is-closing').one(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["b" /* transitionend */])($elem), function () {
+        $elem.removeClass('is-active is-closing');
+        $elem.blur().addClass('invisible');
+      });
+      /**
+       * Fires when the submenu has closed.
+       * @event Drilldown#hide
+       */
+      $elem.trigger('hide.zf.drilldown', [$elem]);
+    }
+
+    /**
+     * Iterates through the nested menus to calculate the min-height, and max-width for the menu.
+     * Prevents content jumping.
+     * @function
+     * @private
+     */
+
+  }, {
+    key: '_getMaxDims',
+    value: function _getMaxDims() {
+      var maxHeight = 0,
+          result = {},
+          _this = this;
+      this.$submenus.add(this.$element).each(function () {
+        var numOfElems = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this).children('li').length;
+        var height = __WEBPACK_IMPORTED_MODULE_4__foundation_util_box__["a" /* Box */].GetDimensions(this).height;
+        maxHeight = height > maxHeight ? height : maxHeight;
+        if (_this.options.autoHeight) {
+          __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this).data('calcHeight', height);
+          if (!__WEBPACK_IMPORTED_MODULE_0_jquery___default()(this).hasClass('is-drilldown-submenu')) result['height'] = height;
+        }
+      });
+
+      if (!this.options.autoHeight) result['min-height'] = maxHeight + 'px';
+
+      result['max-width'] = this.$element[0].getBoundingClientRect().width + 'px';
+
+      return result;
+    }
+
+    /**
+     * Destroys the Drilldown Menu
+     * @function
+     */
+
+  }, {
+    key: '_destroy',
+    value: function _destroy() {
+      if (this.options.scrollTop) this.$element.off('.zf.drilldown', this._bindHandler);
+      this._hideAll();
+      this.$element.off('mutateme.zf.trigger');
+      __WEBPACK_IMPORTED_MODULE_2__foundation_util_nest__["a" /* Nest */].Burn(this.$element, 'drilldown');
+      this.$element.unwrap().find('.js-drilldown-back, .is-submenu-parent-item').remove().end().find('.is-active, .is-closing, .is-drilldown-submenu').removeClass('is-active is-closing is-drilldown-submenu').end().find('[data-submenu]').removeAttr('aria-hidden tabindex role');
+      this.$submenuAnchors.each(function () {
+        __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this).off('.zf.drilldown');
+      });
+
+      this.$submenus.removeClass('drilldown-submenu-cover-previous invisible');
+
+      this.$element.find('a').each(function () {
+        var $link = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this);
+        $link.removeAttr('tabindex');
+        if ($link.data('savedHref')) {
+          $link.attr('href', $link.data('savedHref')).removeData('savedHref');
+        } else {
+          return;
+        }
+      });
+    }
+  }]);
+
+  return Drilldown;
+}(__WEBPACK_IMPORTED_MODULE_5__foundation_plugin__["a" /* Plugin */]);
+
+Drilldown.defaults = {
+  /**
+   * Drilldowns depend on styles in order to function properly; in the default build of Foundation these are
+   * on the `drilldown` class. This option auto-applies this class to the drilldown upon initialization.
+   * @option
+   * @type {boolian}
+   * @default true
+   */
+  autoApplyClass: true,
+  /**
+   * Markup used for JS generated back button. Prepended  or appended (see backButtonPosition) to submenu lists and deleted on `destroy` method, 'js-drilldown-back' class required. Remove the backslash (`\`) if copy and pasting.
+   * @option
+   * @type {string}
+   * @default '<li class="js-drilldown-back"><a tabindex="0">Back</a></li>'
+   */
+  backButton: '<li class="js-drilldown-back"><a tabindex="0">Back</a></li>',
+  /**
+   * Position the back button either at the top or bottom of drilldown submenus. Can be `'left'` or `'bottom'`.
+   * @option
+   * @type {string}
+   * @default top
+   */
+  backButtonPosition: 'top',
+  /**
+   * Markup used to wrap drilldown menu. Use a class name for independent styling; the JS applied class: `is-drilldown` is required. Remove the backslash (`\`) if copy and pasting.
+   * @option
+   * @type {string}
+   * @default '<div></div>'
+   */
+  wrapper: '<div></div>',
+  /**
+   * Adds the parent link to the submenu.
+   * @option
+   * @type {boolean}
+   * @default false
+   */
+  parentLink: false,
+  /**
+   * Allow the menu to return to root list on body click.
+   * @option
+   * @type {boolean}
+   * @default false
+   */
+  closeOnClick: false,
+  /**
+   * Allow the menu to auto adjust height.
+   * @option
+   * @type {boolean}
+   * @default false
+   */
+  autoHeight: false,
+  /**
+   * Animate the auto adjust height.
+   * @option
+   * @type {boolean}
+   * @default false
+   */
+  animateHeight: false,
+  /**
+   * Scroll to the top of the menu after opening a submenu or navigating back using the menu back button
+   * @option
+   * @type {boolean}
+   * @default false
+   */
+  scrollTop: false,
+  /**
+   * String jquery selector (for example 'body') of element to take offset().top from, if empty string the drilldown menu offset().top is taken
+   * @option
+   * @type {string}
+   * @default ''
+   */
+  scrollTopElement: '',
+  /**
+   * ScrollTop offset
+   * @option
+   * @type {number}
+   * @default 0
+   */
+  scrollTopOffset: 0,
+  /**
+   * Scroll animation duration
+   * @option
+   * @type {number}
+   * @default 500
+   */
+  animationDuration: 500,
+  /**
+   * Scroll animation easing. Can be `'swing'` or `'linear'`.
+   * @option
+   * @type {string}
+   * @see {@link https://api.jquery.com/animate|JQuery animate}
+   * @default 'swing'
+   */
+  animationEasing: 'swing'
+  // holdOpen: false
+};
+
+
+
+/***/ }),
+/* 13 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return DropdownMenu; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_nest__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__foundation_util_box__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__foundation_util_core__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__foundation_plugin__ = __webpack_require__(2);
+
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+
+
+
+
+
+
+
+/**
+ * DropdownMenu module.
+ * @module foundation.dropdown-menu
+ * @requires foundation.util.keyboard
+ * @requires foundation.util.box
+ * @requires foundation.util.nest
+ */
+
+var DropdownMenu = function (_Plugin) {
+  _inherits(DropdownMenu, _Plugin);
+
+  function DropdownMenu() {
+    _classCallCheck(this, DropdownMenu);
+
+    return _possibleConstructorReturn(this, (DropdownMenu.__proto__ || Object.getPrototypeOf(DropdownMenu)).apply(this, arguments));
+  }
+
+  _createClass(DropdownMenu, [{
+    key: '_setup',
+
+    /**
+     * Creates a new instance of DropdownMenu.
+     * @class
+     * @name DropdownMenu
+     * @fires DropdownMenu#init
+     * @param {jQuery} element - jQuery object to make into a dropdown menu.
+     * @param {Object} options - Overrides to the default plugin settings.
+     */
+    value: function _setup(element, options) {
+      this.$element = element;
+      this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, DropdownMenu.defaults, this.$element.data(), options);
+      this.className = 'DropdownMenu'; // ie9 back compat
+
+      this._init();
+
+      __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__["a" /* Keyboard */].register('DropdownMenu', {
+        'ENTER': 'open',
+        'SPACE': 'open',
+        'ARROW_RIGHT': 'next',
+        'ARROW_UP': 'up',
+        'ARROW_DOWN': 'down',
+        'ARROW_LEFT': 'previous',
+        'ESCAPE': 'close'
+      });
+    }
+
+    /**
+     * Initializes the plugin, and calls _prepareMenu
+     * @private
+     * @function
+     */
+
+  }, {
+    key: '_init',
+    value: function _init() {
+      __WEBPACK_IMPORTED_MODULE_2__foundation_util_nest__["a" /* Nest */].Feather(this.$element, 'dropdown');
+
+      var subs = this.$element.find('li.is-dropdown-submenu-parent');
+      this.$element.children('.is-dropdown-submenu-parent').children('.is-dropdown-submenu').addClass('first-sub');
+
+      this.$menuItems = this.$element.find('[role="menuitem"]');
+      this.$tabs = this.$element.children('[role="menuitem"]');
+      this.$tabs.find('ul.is-dropdown-submenu').addClass(this.options.verticalClass);
+
+      if (this.options.alignment === 'auto') {
+        if (this.$element.hasClass(this.options.rightClass) || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__foundation_util_core__["c" /* rtl */])() || this.$element.parents('.top-bar-right').is('*')) {
+          this.options.alignment = 'right';
+          subs.addClass('opens-left');
+        } else {
+          this.options.alignment = 'left';
+          subs.addClass('opens-right');
+        }
+      } else {
+        if (this.options.alignment === 'right') {
+          subs.addClass('opens-left');
+        } else {
+          subs.addClass('opens-right');
+        }
+      }
+      this.changed = false;
+      this._events();
+    }
+  }, {
+    key: '_isVertical',
+    value: function _isVertical() {
+      return this.$tabs.css('display') === 'block' || this.$element.css('flex-direction') === 'column';
+    }
+  }, {
+    key: '_isRtl',
+    value: function _isRtl() {
+      return this.$element.hasClass('align-right') || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__foundation_util_core__["c" /* rtl */])() && !this.$element.hasClass('align-left');
+    }
+
+    /**
+     * Adds event listeners to elements within the menu
+     * @private
+     * @function
+     */
+
+  }, {
+    key: '_events',
+    value: function _events() {
+      var _this = this,
+          hasTouch = 'ontouchstart' in window || typeof window.ontouchstart !== 'undefined',
+          parClass = 'is-dropdown-submenu-parent';
