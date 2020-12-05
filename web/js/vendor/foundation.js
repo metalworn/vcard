@@ -3193,3 +3193,293 @@ var DropdownMenu = function (_Plugin) {
      * Destroys the plugin.
      * @function
      */
+
+  }, {
+    key: '_destroy',
+    value: function _destroy() {
+      this.$menuItems.off('.zf.dropdownmenu').removeAttr('data-is-click').removeClass('is-right-arrow is-left-arrow is-down-arrow opens-right opens-left opens-inner');
+      __WEBPACK_IMPORTED_MODULE_0_jquery___default()(document.body).off('.zf.dropdownmenu');
+      __WEBPACK_IMPORTED_MODULE_2__foundation_util_nest__["a" /* Nest */].Burn(this.$element, 'dropdown');
+    }
+  }]);
+
+  return DropdownMenu;
+}(__WEBPACK_IMPORTED_MODULE_5__foundation_plugin__["a" /* Plugin */]);
+
+/**
+ * Default settings for plugin
+ */
+
+
+DropdownMenu.defaults = {
+  /**
+   * Disallows hover events from opening submenus
+   * @option
+   * @type {boolean}
+   * @default false
+   */
+  disableHover: false,
+  /**
+   * Allow a submenu to automatically close on a mouseleave event, if not clicked open.
+   * @option
+   * @type {boolean}
+   * @default true
+   */
+  autoclose: true,
+  /**
+   * Amount of time to delay opening a submenu on hover event.
+   * @option
+   * @type {number}
+   * @default 50
+   */
+  hoverDelay: 50,
+  /**
+   * Allow a submenu to open/remain open on parent click event. Allows cursor to move away from menu.
+   * @option
+   * @type {boolean}
+   * @default false
+   */
+  clickOpen: false,
+  /**
+   * Amount of time to delay closing a submenu on a mouseleave event.
+   * @option
+   * @type {number}
+   * @default 500
+   */
+
+  closingTime: 500,
+  /**
+   * Position of the menu relative to what direction the submenus should open. Handled by JS. Can be `'auto'`, `'left'` or `'right'`.
+   * @option
+   * @type {string}
+   * @default 'auto'
+   */
+  alignment: 'auto',
+  /**
+   * Allow clicks on the body to close any open submenus.
+   * @option
+   * @type {boolean}
+   * @default true
+   */
+  closeOnClick: true,
+  /**
+   * Allow clicks on leaf anchor links to close any open submenus.
+   * @option
+   * @type {boolean}
+   * @default true
+   */
+  closeOnClickInside: true,
+  /**
+   * Class applied to vertical oriented menus, Foundation default is `vertical`. Update this if using your own class.
+   * @option
+   * @type {string}
+   * @default 'vertical'
+   */
+  verticalClass: 'vertical',
+  /**
+   * Class applied to right-side oriented menus, Foundation default is `align-right`. Update this if using your own class.
+   * @option
+   * @type {string}
+   * @default 'align-right'
+   */
+  rightClass: 'align-right',
+  /**
+   * Boolean to force overide the clicking of links to perform default action, on second touch event for mobile.
+   * @option
+   * @type {boolean}
+   * @default true
+   */
+  forceFollow: true
+};
+
+
+
+/***/ }),
+/* 14 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return SmoothScroll; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_core__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_plugin__ = __webpack_require__(2);
+
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+
+
+
+
+/**
+ * SmoothScroll module.
+ * @module foundation.smooth-scroll
+ */
+
+var SmoothScroll = function (_Plugin) {
+    _inherits(SmoothScroll, _Plugin);
+
+    function SmoothScroll() {
+        _classCallCheck(this, SmoothScroll);
+
+        return _possibleConstructorReturn(this, (SmoothScroll.__proto__ || Object.getPrototypeOf(SmoothScroll)).apply(this, arguments));
+    }
+
+    _createClass(SmoothScroll, [{
+        key: '_setup',
+
+        /**
+         * Creates a new instance of SmoothScroll.
+         * @class
+         * @name SmoothScroll
+         * @fires SmoothScroll#init
+         * @param {Object} element - jQuery object to add the trigger to.
+         * @param {Object} options - Overrides to the default plugin settings.
+         */
+        value: function _setup(element, options) {
+            this.$element = element;
+            this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, SmoothScroll.defaults, this.$element.data(), options);
+            this.className = 'SmoothScroll'; // ie9 back compat
+
+            this._init();
+        }
+
+        /**
+         * Initialize the SmoothScroll plugin
+         * @private
+         */
+
+    }, {
+        key: '_init',
+        value: function _init() {
+            var id = this.$element[0].id || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__foundation_util_core__["a" /* GetYoDigits */])(6, 'smooth-scroll');
+            var _this = this;
+            this.$element.attr({
+                'id': id
+            });
+
+            this._events();
+        }
+
+        /**
+         * Initializes events for SmoothScroll.
+         * @private
+         */
+
+    }, {
+        key: '_events',
+        value: function _events() {
+            var _this = this;
+
+            // click handler function.
+            var handleLinkClick = function (e) {
+                // exit function if the event source isn't coming from an anchor with href attribute starts with '#'
+                if (!__WEBPACK_IMPORTED_MODULE_0_jquery___default()(this).is('a[href^="#"]')) {
+                    return false;
+                }
+
+                var arrival = this.getAttribute('href');
+
+                _this._inTransition = true;
+
+                SmoothScroll.scrollToLoc(arrival, _this.options, function () {
+                    _this._inTransition = false;
+                });
+
+                e.preventDefault();
+            };
+
+            this.$element.on('click.zf.smoothScroll', handleLinkClick);
+            this.$element.on('click.zf.smoothScroll', 'a[href^="#"]', handleLinkClick);
+        }
+
+        /**
+         * Function to scroll to a given location on the page.
+         * @param {String} loc - A properly formatted jQuery id selector. Example: '#foo'
+         * @param {Object} options - The options to use.
+         * @param {Function} callback - The callback function.
+         * @static
+         * @function
+         */
+
+    }], [{
+        key: 'scrollToLoc',
+        value: function scrollToLoc(loc) {
+            var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : SmoothScroll.defaults;
+            var callback = arguments[2];
+
+            // Do nothing if target does not exist to prevent errors
+            if (!__WEBPACK_IMPORTED_MODULE_0_jquery___default()(loc).length) {
+                return false;
+            }
+
+            var scrollPos = Math.round(__WEBPACK_IMPORTED_MODULE_0_jquery___default()(loc).offset().top - options.threshold / 2 - options.offset);
+
+            __WEBPACK_IMPORTED_MODULE_0_jquery___default()('html, body').stop(true).animate({ scrollTop: scrollPos }, options.animationDuration, options.animationEasing, function () {
+                if (callback && typeof callback == "function") {
+                    callback();
+                }
+            });
+        }
+    }]);
+
+    return SmoothScroll;
+}(__WEBPACK_IMPORTED_MODULE_2__foundation_plugin__["a" /* Plugin */]);
+
+/**
+ * Default settings for plugin.
+ */
+
+
+SmoothScroll.defaults = {
+    /**
+     * Amount of time, in ms, the animated scrolling should take between locations.
+     * @option
+     * @type {number}
+     * @default 500
+     */
+    animationDuration: 500,
+    /**
+     * Animation style to use when scrolling between locations. Can be `'swing'` or `'linear'`.
+     * @option
+     * @type {string}
+     * @default 'linear'
+     * @see {@link https://api.jquery.com/animate|Jquery animate}
+     */
+    animationEasing: 'linear',
+    /**
+     * Number of pixels to use as a marker for location changes.
+     * @option
+     * @type {number}
+     * @default 50
+     */
+    threshold: 50,
+    /**
+     * Number of pixels to offset the scroll of the page on item click if using a sticky nav bar.
+     * @option
+     * @type {number}
+     * @default 0
+     */
+    offset: 0
+};
+
+
+
+/***/ }),
+/* 15 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Tabs; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_imageLoader__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__foundation_plugin__ = __webpack_require__(2);
