@@ -3483,3 +3483,295 @@ SmoothScroll.defaults = {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_imageLoader__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__foundation_plugin__ = __webpack_require__(2);
+
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+
+
+
+
+/**
+ * Tabs module.
+ * @module foundation.tabs
+ * @requires foundation.util.keyboard
+ * @requires foundation.util.imageLoader if tabs contain images
+ */
+
+var Tabs = function (_Plugin) {
+  _inherits(Tabs, _Plugin);
+
+  function Tabs() {
+    _classCallCheck(this, Tabs);
+
+    return _possibleConstructorReturn(this, (Tabs.__proto__ || Object.getPrototypeOf(Tabs)).apply(this, arguments));
+  }
+
+  _createClass(Tabs, [{
+    key: '_setup',
+
+    /**
+     * Creates a new instance of tabs.
+     * @class
+     * @name Tabs
+     * @fires Tabs#init
+     * @param {jQuery} element - jQuery object to make into tabs.
+     * @param {Object} options - Overrides to the default plugin settings.
+     */
+    value: function _setup(element, options) {
+      this.$element = element;
+      this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, Tabs.defaults, this.$element.data(), options);
+      this.className = 'Tabs'; // ie9 back compat
+
+      this._init();
+      __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__["a" /* Keyboard */].register('Tabs', {
+        'ENTER': 'open',
+        'SPACE': 'open',
+        'ARROW_RIGHT': 'next',
+        'ARROW_UP': 'previous',
+        'ARROW_DOWN': 'next',
+        'ARROW_LEFT': 'previous'
+        // 'TAB': 'next',
+        // 'SHIFT_TAB': 'previous'
+      });
+    }
+
+    /**
+     * Initializes the tabs by showing and focusing (if autoFocus=true) the preset active tab.
+     * @private
+     */
+
+  }, {
+    key: '_init',
+    value: function _init() {
+      var _this3 = this;
+
+      var _this = this;
+
+      this.$element.attr({ 'role': 'tablist' });
+      this.$tabTitles = this.$element.find('.' + this.options.linkClass);
+      this.$tabContent = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('[data-tabs-content="' + this.$element[0].id + '"]');
+
+      this.$tabTitles.each(function () {
+        var $elem = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this),
+            $link = $elem.find('a'),
+            isActive = $elem.hasClass('' + _this.options.linkActiveClass),
+            hash = $link.attr('data-tabs-target') || $link[0].hash.slice(1),
+            linkId = $link[0].id ? $link[0].id : hash + '-label',
+            $tabContent = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('#' + hash);
+
+        $elem.attr({ 'role': 'presentation' });
+
+        $link.attr({
+          'role': 'tab',
+          'aria-controls': hash,
+          'aria-selected': isActive,
+          'id': linkId,
+          'tabindex': isActive ? '0' : '-1'
+        });
+
+        $tabContent.attr({
+          'role': 'tabpanel',
+          'aria-labelledby': linkId
+        });
+
+        if (!isActive) {
+          $tabContent.attr('aria-hidden', 'true');
+        }
+
+        if (isActive && _this.options.autoFocus) {
+          __WEBPACK_IMPORTED_MODULE_0_jquery___default()(window).load(function () {
+            __WEBPACK_IMPORTED_MODULE_0_jquery___default()('html, body').animate({ scrollTop: $elem.offset().top }, _this.options.deepLinkSmudgeDelay, function () {
+              $link.focus();
+            });
+          });
+        }
+      });
+      if (this.options.matchHeight) {
+        var $images = this.$tabContent.find('img');
+
+        if ($images.length) {
+          __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__foundation_util_imageLoader__["a" /* onImagesLoaded */])($images, this._setHeight.bind(this));
+        } else {
+          this._setHeight();
+        }
+      }
+
+      //current context-bound function to open tabs on page load or history popstate
+      this._checkDeepLink = function () {
+        var anchor = window.location.hash;
+        //need a hash and a relevant anchor in this tabset
+        if (anchor.length) {
+          var $link = _this3.$element.find('[href$="' + anchor + '"]');
+          if ($link.length) {
+            _this3.selectTab(__WEBPACK_IMPORTED_MODULE_0_jquery___default()(anchor), true);
+
+            //roll up a little to show the titles
+            if (_this3.options.deepLinkSmudge) {
+              var offset = _this3.$element.offset();
+              __WEBPACK_IMPORTED_MODULE_0_jquery___default()('html, body').animate({ scrollTop: offset.top }, _this3.options.deepLinkSmudgeDelay);
+            }
+
+            /**
+              * Fires when the zplugin has deeplinked at pageload
+              * @event Tabs#deeplink
+              */
+            _this3.$element.trigger('deeplink.zf.tabs', [$link, __WEBPACK_IMPORTED_MODULE_0_jquery___default()(anchor)]);
+          }
+        }
+      };
+
+      //use browser to open a tab, if it exists in this tabset
+      if (this.options.deepLink) {
+        this._checkDeepLink();
+      }
+
+      this._events();
+    }
+
+    /**
+     * Adds event handlers for items within the tabs.
+     * @private
+     */
+
+  }, {
+    key: '_events',
+    value: function _events() {
+      this._addKeyHandler();
+      this._addClickHandler();
+      this._setHeightMqHandler = null;
+
+      if (this.options.matchHeight) {
+        this._setHeightMqHandler = this._setHeight.bind(this);
+
+        __WEBPACK_IMPORTED_MODULE_0_jquery___default()(window).on('changed.zf.mediaquery', this._setHeightMqHandler);
+      }
+
+      if (this.options.deepLink) {
+        __WEBPACK_IMPORTED_MODULE_0_jquery___default()(window).on('popstate', this._checkDeepLink);
+      }
+    }
+
+    /**
+     * Adds click handlers for items within the tabs.
+     * @private
+     */
+
+  }, {
+    key: '_addClickHandler',
+    value: function _addClickHandler() {
+      var _this = this;
+
+      this.$element.off('click.zf.tabs').on('click.zf.tabs', '.' + this.options.linkClass, function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        _this._handleTabChange(__WEBPACK_IMPORTED_MODULE_0_jquery___default()(this));
+      });
+    }
+
+    /**
+     * Adds keyboard event handlers for items within the tabs.
+     * @private
+     */
+
+  }, {
+    key: '_addKeyHandler',
+    value: function _addKeyHandler() {
+      var _this = this;
+
+      this.$tabTitles.off('keydown.zf.tabs').on('keydown.zf.tabs', function (e) {
+        if (e.which === 9) return;
+
+        var $element = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this),
+            $elements = $element.parent('ul').children('li'),
+            $prevElement,
+            $nextElement;
+
+        $elements.each(function (i) {
+          if (__WEBPACK_IMPORTED_MODULE_0_jquery___default()(this).is($element)) {
+            if (_this.options.wrapOnKeys) {
+              $prevElement = i === 0 ? $elements.last() : $elements.eq(i - 1);
+              $nextElement = i === $elements.length - 1 ? $elements.first() : $elements.eq(i + 1);
+            } else {
+              $prevElement = $elements.eq(Math.max(0, i - 1));
+              $nextElement = $elements.eq(Math.min(i + 1, $elements.length - 1));
+            }
+            return;
+          }
+        });
+
+        // handle keyboard event with keyboard util
+        __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__["a" /* Keyboard */].handleKey(e, 'Tabs', {
+          open: function () {
+            $element.find('[role="tab"]').focus();
+            _this._handleTabChange($element);
+          },
+          previous: function () {
+            $prevElement.find('[role="tab"]').focus();
+            _this._handleTabChange($prevElement);
+          },
+          next: function () {
+            $nextElement.find('[role="tab"]').focus();
+            _this._handleTabChange($nextElement);
+          },
+          handled: function () {
+            e.stopPropagation();
+            e.preventDefault();
+          }
+        });
+      });
+    }
+
+    /**
+     * Opens the tab `$targetContent` defined by `$target`. Collapses active tab.
+     * @param {jQuery} $target - Tab to open.
+     * @param {boolean} historyHandled - browser has already handled a history update
+     * @fires Tabs#change
+     * @function
+     */
+
+  }, {
+    key: '_handleTabChange',
+    value: function _handleTabChange($target, historyHandled) {
+
+      /**
+       * Check for active class on target. Collapse if exists.
+       */
+      if ($target.hasClass('' + this.options.linkActiveClass)) {
+        if (this.options.activeCollapse) {
+          this._collapseTab($target);
+
+          /**
+           * Fires when the zplugin has successfully collapsed tabs.
+           * @event Tabs#collapse
+           */
+          this.$element.trigger('collapse.zf.tabs', [$target]);
+        }
+        return;
+      }
+
+      var $oldTab = this.$element.find('.' + this.options.linkClass + '.' + this.options.linkActiveClass),
+          $tabLink = $target.find('[role="tab"]'),
+          hash = $tabLink.attr('data-tabs-target') || $tabLink[0].hash.slice(1),
+          $targetContent = this.$tabContent.find('#' + hash);
+
+      //close old tab
+      this._collapseTab($oldTab);
+
+      //open new tab
+      this._openTab($target);
+
+      //either replace or update browser history
+      if (this.options.deepLink && !historyHandled) {
+        var anchor = $target.find('a').attr('href');
+
+        if (this.options.updateHistory) {
+          history.pushState({}, '', anchor);
+        } else {
+          history.replaceState({}, '', anchor);
