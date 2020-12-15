@@ -4362,3 +4362,276 @@ var SpotSwipe = function () {
   _createClass(SpotSwipe, [{
     key: '_init',
     value: function _init() {
+      var $ = this.$;
+      $.event.special.swipe = { setup: init };
+
+      $.each(['left', 'up', 'down', 'right'], function () {
+        $.event.special['swipe' + this] = { setup: function () {
+            $(this).on('swipe', $.noop);
+          } };
+      });
+    }
+  }]);
+
+  return SpotSwipe;
+}();
+
+/****************************************************
+ * As far as I can tell, both setupSpotSwipe and    *
+ * setupTouchHandler should be idempotent,          *
+ * because they directly replace functions &        *
+ * values, and do not add event handlers directly.  *
+ ****************************************************/
+
+Touch.setupSpotSwipe = function ($) {
+  $.spotSwipe = new SpotSwipe($);
+};
+
+/****************************************************
+ * Method for adding pseudo drag events to elements *
+ ***************************************************/
+Touch.setupTouchHandler = function ($) {
+  $.fn.addTouch = function () {
+    this.each(function (i, el) {
+      $(el).bind('touchstart touchmove touchend touchcancel', function () {
+        //we pass the original event object because the jQuery event
+        //object is normalized to w3c specs and does not provide the TouchList
+        handleTouch(event);
+      });
+    });
+
+    var handleTouch = function (event) {
+      var touches = event.changedTouches,
+          first = touches[0],
+          eventTypes = {
+        touchstart: 'mousedown',
+        touchmove: 'mousemove',
+        touchend: 'mouseup'
+      },
+          type = eventTypes[event.type],
+          simulatedEvent;
+
+      if ('MouseEvent' in window && typeof window.MouseEvent === 'function') {
+        simulatedEvent = new window.MouseEvent(type, {
+          'bubbles': true,
+          'cancelable': true,
+          'screenX': first.screenX,
+          'screenY': first.screenY,
+          'clientX': first.clientX,
+          'clientY': first.clientY
+        });
+      } else {
+        simulatedEvent = document.createEvent('MouseEvent');
+        simulatedEvent.initMouseEvent(type, true, true, window, 1, first.screenX, first.screenY, first.clientX, first.clientY, false, false, false, false, 0 /*left*/, null);
+      }
+      first.target.dispatchEvent(simulatedEvent);
+    };
+  };
+};
+
+Touch.init = function ($) {
+  if (typeof $.spotSwipe === 'undefined') {
+    Touch.setupSpotSwipe($);
+    Touch.setupTouchHandler($);
+  }
+};
+
+
+
+/***/ }),
+/* 18 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Abide; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_plugin__ = __webpack_require__(2);
+
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+
+
+
+/**
+ * Abide module.
+ * @module foundation.abide
+ */
+
+var Abide = function (_Plugin) {
+  _inherits(Abide, _Plugin);
+
+  function Abide() {
+    _classCallCheck(this, Abide);
+
+    return _possibleConstructorReturn(this, (Abide.__proto__ || Object.getPrototypeOf(Abide)).apply(this, arguments));
+  }
+
+  _createClass(Abide, [{
+    key: '_setup',
+
+    /**
+     * Creates a new instance of Abide.
+     * @class
+     * @name Abide
+     * @fires Abide#init
+     * @param {Object} element - jQuery object to add the trigger to.
+     * @param {Object} options - Overrides to the default plugin settings.
+     */
+    value: function _setup(element) {
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+      this.$element = element;
+      this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend(true, {}, Abide.defaults, this.$element.data(), options);
+
+      this.className = 'Abide'; // ie9 back compat
+      this._init();
+    }
+
+    /**
+     * Initializes the Abide plugin and calls functions to get Abide functioning on load.
+     * @private
+     */
+
+  }, {
+    key: '_init',
+    value: function _init() {
+      this.$inputs = this.$element.find('input, textarea, select');
+
+      this._events();
+    }
+
+    /**
+     * Initializes events for Abide.
+     * @private
+     */
+
+  }, {
+    key: '_events',
+    value: function _events() {
+      var _this3 = this;
+
+      this.$element.off('.abide').on('reset.zf.abide', function () {
+        _this3.resetForm();
+      }).on('submit.zf.abide', function () {
+        return _this3.validateForm();
+      });
+
+      if (this.options.validateOn === 'fieldChange') {
+        this.$inputs.off('change.zf.abide').on('change.zf.abide', function (e) {
+          _this3.validateInput(__WEBPACK_IMPORTED_MODULE_0_jquery___default()(e.target));
+        });
+      }
+
+      if (this.options.liveValidate) {
+        this.$inputs.off('input.zf.abide').on('input.zf.abide', function (e) {
+          _this3.validateInput(__WEBPACK_IMPORTED_MODULE_0_jquery___default()(e.target));
+        });
+      }
+
+      if (this.options.validateOnBlur) {
+        this.$inputs.off('blur.zf.abide').on('blur.zf.abide', function (e) {
+          _this3.validateInput(__WEBPACK_IMPORTED_MODULE_0_jquery___default()(e.target));
+        });
+      }
+    }
+
+    /**
+     * Calls necessary functions to update Abide upon DOM change
+     * @private
+     */
+
+  }, {
+    key: '_reflow',
+    value: function _reflow() {
+      this._init();
+    }
+
+    /**
+     * Checks whether or not a form element has the required attribute and if it's checked or not
+     * @param {Object} element - jQuery object to check for required attribute
+     * @returns {Boolean} Boolean value depends on whether or not attribute is checked or empty
+     */
+
+  }, {
+    key: 'requiredCheck',
+    value: function requiredCheck($el) {
+      if (!$el.attr('required')) return true;
+
+      var isGood = true;
+
+      switch ($el[0].type) {
+        case 'checkbox':
+          isGood = $el[0].checked;
+          break;
+
+        case 'select':
+        case 'select-one':
+        case 'select-multiple':
+          var opt = $el.find('option:selected');
+          if (!opt.length || !opt.val()) isGood = false;
+          break;
+
+        default:
+          if (!$el.val() || !$el.val().length) isGood = false;
+      }
+
+      return isGood;
+    }
+
+    /**
+     * Get:
+     * - Based on $el, the first element(s) corresponding to `formErrorSelector` in this order:
+     *   1. The element's direct sibling('s).
+     *   2. The element's parent's children.
+     * - Element(s) with the attribute `[data-form-error-for]` set with the element's id.
+     *
+     * This allows for multiple form errors per input, though if none are found, no form errors will be shown.
+     *
+     * @param {Object} $el - jQuery object to use as reference to find the form error selector.
+     * @returns {Object} jQuery object with the selector.
+     */
+
+  }, {
+    key: 'findFormError',
+    value: function findFormError($el) {
+      var id = $el[0].id;
+      var $error = $el.siblings(this.options.formErrorSelector);
+
+      if (!$error.length) {
+        $error = $el.parent().find(this.options.formErrorSelector);
+      }
+
+      $error = $error.add(this.$element.find('[data-form-error-for="' + id + '"]'));
+
+      return $error;
+    }
+
+    /**
+     * Get the first element in this order:
+     * 2. The <label> with the attribute `[for="someInputId"]`
+     * 3. The `.closest()` <label>
+     *
+     * @param {Object} $el - jQuery object to check for required attribute
+     * @returns {Boolean} Boolean value depends on whether or not attribute is checked or empty
+     */
+
+  }, {
+    key: 'findLabel',
+    value: function findLabel($el) {
+      var id = $el[0].id;
+      var $label = this.$element.find('label[for="' + id + '"]');
+
+      if (!$label.length) {
+        return $el.closest('label');
+      }
+
+      return $label;
+    }
