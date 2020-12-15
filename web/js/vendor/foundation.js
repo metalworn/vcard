@@ -4635,3 +4635,299 @@ var Abide = function (_Plugin) {
 
       return $label;
     }
+
+    /**
+     * Get the set of labels associated with a set of radio els in this order
+     * 2. The <label> with the attribute `[for="someInputId"]`
+     * 3. The `.closest()` <label>
+     *
+     * @param {Object} $el - jQuery object to check for required attribute
+     * @returns {Boolean} Boolean value depends on whether or not attribute is checked or empty
+     */
+
+  }, {
+    key: 'findRadioLabels',
+    value: function findRadioLabels($els) {
+      var _this4 = this;
+
+      var labels = $els.map(function (i, el) {
+        var id = el.id;
+        var $label = _this4.$element.find('label[for="' + id + '"]');
+
+        if (!$label.length) {
+          $label = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(el).closest('label');
+        }
+        return $label[0];
+      });
+
+      return __WEBPACK_IMPORTED_MODULE_0_jquery___default()(labels);
+    }
+
+    /**
+     * Adds the CSS error class as specified by the Abide settings to the label, input, and the form
+     * @param {Object} $el - jQuery object to add the class to
+     */
+
+  }, {
+    key: 'addErrorClasses',
+    value: function addErrorClasses($el) {
+      var $label = this.findLabel($el);
+      var $formError = this.findFormError($el);
+
+      if ($label.length) {
+        $label.addClass(this.options.labelErrorClass);
+      }
+
+      if ($formError.length) {
+        $formError.addClass(this.options.formErrorClass);
+      }
+
+      $el.addClass(this.options.inputErrorClass).attr('data-invalid', '');
+    }
+
+    /**
+     * Remove CSS error classes etc from an entire radio button group
+     * @param {String} groupName - A string that specifies the name of a radio button group
+     *
+     */
+
+  }, {
+    key: 'removeRadioErrorClasses',
+    value: function removeRadioErrorClasses(groupName) {
+      var $els = this.$element.find(':radio[name="' + groupName + '"]');
+      var $labels = this.findRadioLabels($els);
+      var $formErrors = this.findFormError($els);
+
+      if ($labels.length) {
+        $labels.removeClass(this.options.labelErrorClass);
+      }
+
+      if ($formErrors.length) {
+        $formErrors.removeClass(this.options.formErrorClass);
+      }
+
+      $els.removeClass(this.options.inputErrorClass).removeAttr('data-invalid');
+    }
+
+    /**
+     * Removes CSS error class as specified by the Abide settings from the label, input, and the form
+     * @param {Object} $el - jQuery object to remove the class from
+     */
+
+  }, {
+    key: 'removeErrorClasses',
+    value: function removeErrorClasses($el) {
+      // radios need to clear all of the els
+      if ($el[0].type == 'radio') {
+        return this.removeRadioErrorClasses($el.attr('name'));
+      }
+
+      var $label = this.findLabel($el);
+      var $formError = this.findFormError($el);
+
+      if ($label.length) {
+        $label.removeClass(this.options.labelErrorClass);
+      }
+
+      if ($formError.length) {
+        $formError.removeClass(this.options.formErrorClass);
+      }
+
+      $el.removeClass(this.options.inputErrorClass).removeAttr('data-invalid');
+    }
+
+    /**
+     * Goes through a form to find inputs and proceeds to validate them in ways specific to their type.
+     * Ignores inputs with data-abide-ignore, type="hidden" or disabled attributes set
+     * @fires Abide#invalid
+     * @fires Abide#valid
+     * @param {Object} element - jQuery object to validate, should be an HTML input
+     * @returns {Boolean} goodToGo - If the input is valid or not.
+     */
+
+  }, {
+    key: 'validateInput',
+    value: function validateInput($el) {
+      var _this5 = this;
+
+      var clearRequire = this.requiredCheck($el),
+          validated = false,
+          customValidator = true,
+          validator = $el.attr('data-validator'),
+          equalTo = true;
+
+      // don't validate ignored inputs or hidden inputs or disabled inputs
+      if ($el.is('[data-abide-ignore]') || $el.is('[type="hidden"]') || $el.is('[disabled]')) {
+        return true;
+      }
+
+      switch ($el[0].type) {
+        case 'radio':
+          validated = this.validateRadio($el.attr('name'));
+          break;
+
+        case 'checkbox':
+          validated = clearRequire;
+          break;
+
+        case 'select':
+        case 'select-one':
+        case 'select-multiple':
+          validated = clearRequire;
+          break;
+
+        default:
+          validated = this.validateText($el);
+      }
+
+      if (validator) {
+        customValidator = this.matchValidation($el, validator, $el.attr('required'));
+      }
+
+      if ($el.attr('data-equalto')) {
+        equalTo = this.options.validators.equalTo($el);
+      }
+
+      var goodToGo = [clearRequire, validated, customValidator, equalTo].indexOf(false) === -1;
+      var message = (goodToGo ? 'valid' : 'invalid') + '.zf.abide';
+
+      if (goodToGo) {
+        // Re-validate inputs that depend on this one with equalto
+        var dependentElements = this.$element.find('[data-equalto="' + $el.attr('id') + '"]');
+        if (dependentElements.length) {
+          (function () {
+            var _this = _this5;
+            dependentElements.each(function () {
+              if (__WEBPACK_IMPORTED_MODULE_0_jquery___default()(this).val()) {
+                _this.validateInput(__WEBPACK_IMPORTED_MODULE_0_jquery___default()(this));
+              }
+            });
+          })();
+        }
+      }
+
+      this[goodToGo ? 'removeErrorClasses' : 'addErrorClasses']($el);
+
+      /**
+       * Fires when the input is done checking for validation. Event trigger is either `valid.zf.abide` or `invalid.zf.abide`
+       * Trigger includes the DOM element of the input.
+       * @event Abide#valid
+       * @event Abide#invalid
+       */
+      $el.trigger(message, [$el]);
+
+      return goodToGo;
+    }
+
+    /**
+     * Goes through a form and if there are any invalid inputs, it will display the form error element
+     * @returns {Boolean} noError - true if no errors were detected...
+     * @fires Abide#formvalid
+     * @fires Abide#forminvalid
+     */
+
+  }, {
+    key: 'validateForm',
+    value: function validateForm() {
+      var acc = [];
+      var _this = this;
+
+      this.$inputs.each(function () {
+        acc.push(_this.validateInput(__WEBPACK_IMPORTED_MODULE_0_jquery___default()(this)));
+      });
+
+      var noError = acc.indexOf(false) === -1;
+
+      this.$element.find('[data-abide-error]').css('display', noError ? 'none' : 'block');
+
+      /**
+       * Fires when the form is finished validating. Event trigger is either `formvalid.zf.abide` or `forminvalid.zf.abide`.
+       * Trigger includes the element of the form.
+       * @event Abide#formvalid
+       * @event Abide#forminvalid
+       */
+      this.$element.trigger((noError ? 'formvalid' : 'forminvalid') + '.zf.abide', [this.$element]);
+
+      return noError;
+    }
+
+    /**
+     * Determines whether or a not a text input is valid based on the pattern specified in the attribute. If no matching pattern is found, returns true.
+     * @param {Object} $el - jQuery object to validate, should be a text input HTML element
+     * @param {String} pattern - string value of one of the RegEx patterns in Abide.options.patterns
+     * @returns {Boolean} Boolean value depends on whether or not the input value matches the pattern specified
+     */
+
+  }, {
+    key: 'validateText',
+    value: function validateText($el, pattern) {
+      // A pattern can be passed to this function, or it will be infered from the input's "pattern" attribute, or it's "type" attribute
+      pattern = pattern || $el.attr('pattern') || $el.attr('type');
+      var inputText = $el.val();
+      var valid = false;
+
+      if (inputText.length) {
+        // If the pattern attribute on the element is in Abide's list of patterns, then test that regexp
+        if (this.options.patterns.hasOwnProperty(pattern)) {
+          valid = this.options.patterns[pattern].test(inputText);
+        }
+        // If the pattern name isn't also the type attribute of the field, then test it as a regexp
+        else if (pattern !== $el.attr('type')) {
+            valid = new RegExp(pattern).test(inputText);
+          } else {
+            valid = true;
+          }
+      }
+      // An empty field is valid if it's not required
+      else if (!$el.prop('required')) {
+          valid = true;
+        }
+
+      return valid;
+    }
+
+    /**
+     * Determines whether or a not a radio input is valid based on whether or not it is required and selected. Although the function targets a single `<input>`, it validates by checking the `required` and `checked` properties of all radio buttons in its group.
+     * @param {String} groupName - A string that specifies the name of a radio button group
+     * @returns {Boolean} Boolean value depends on whether or not at least one radio input has been selected (if it's required)
+     */
+
+  }, {
+    key: 'validateRadio',
+    value: function validateRadio(groupName) {
+      // If at least one radio in the group has the `required` attribute, the group is considered required
+      // Per W3C spec, all radio buttons in a group should have `required`, but we're being nice
+      var $group = this.$element.find(':radio[name="' + groupName + '"]');
+      var valid = false,
+          required = false;
+
+      // For the group to be required, at least one radio needs to be required
+      $group.each(function (i, e) {
+        if (__WEBPACK_IMPORTED_MODULE_0_jquery___default()(e).attr('required')) {
+          required = true;
+        }
+      });
+      if (!required) valid = true;
+
+      if (!valid) {
+        // For the group to be valid, at least one radio needs to be checked
+        $group.each(function (i, e) {
+          if (__WEBPACK_IMPORTED_MODULE_0_jquery___default()(e).prop('checked')) {
+            valid = true;
+          }
+        });
+      };
+
+      return valid;
+    }
+
+    /**
+     * Determines if a selected input passes a custom validation function. Multiple validations can be used, if passed to the element with `data-validator="foo bar baz"` in a space separated listed.
+     * @param {Object} $el - jQuery input element.
+     * @param {String} validators - a string of function names matching functions in the Abide.options.validators object.
+     * @param {Boolean} required - self explanatory?
+     * @returns {Boolean} - true if validations passed.
+     */
+
+  }, {
+    key: 'matchValidation',
