@@ -5216,3 +5216,328 @@ var Foundation = {
   reInit: function (plugins) {
     var isJQ = plugins instanceof __WEBPACK_IMPORTED_MODULE_0_jquery___default.a;
     try {
+      if (isJQ) {
+        plugins.each(function () {
+          __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this).data('zfPlugin')._init();
+        });
+      } else {
+        var type = typeof plugins,
+            _this = this,
+            fns = {
+          'object': function (plgs) {
+            plgs.forEach(function (p) {
+              p = hyphenate(p);
+              __WEBPACK_IMPORTED_MODULE_0_jquery___default()('[data-' + p + ']').foundation('_init');
+            });
+          },
+          'string': function () {
+            plugins = hyphenate(plugins);
+            __WEBPACK_IMPORTED_MODULE_0_jquery___default()('[data-' + plugins + ']').foundation('_init');
+          },
+          'undefined': function () {
+            this['object'](Object.keys(_this._plugins));
+          }
+        };
+        fns[type](plugins);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      return plugins;
+    }
+  },
+
+  /**
+   * Initialize plugins on any elements within `elem` (and `elem` itself) that aren't already initialized.
+   * @param {Object} elem - jQuery object containing the element to check inside. Also checks the element itself, unless it's the `document` object.
+   * @param {String|Array} plugins - A list of plugins to initialize. Leave this out to initialize everything.
+   */
+  reflow: function (elem, plugins) {
+
+    // If plugins is undefined, just grab everything
+    if (typeof plugins === 'undefined') {
+      plugins = Object.keys(this._plugins);
+    }
+    // If plugins is a string, convert it to an array with one item
+    else if (typeof plugins === 'string') {
+        plugins = [plugins];
+      }
+
+    var _this = this;
+
+    // Iterate through each plugin
+    __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.each(plugins, function (i, name) {
+      // Get the current plugin
+      var plugin = _this._plugins[name];
+
+      // Localize the search to all elements inside elem, as well as elem itself, unless elem === document
+      var $elem = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(elem).find('[data-' + name + ']').addBack('[data-' + name + ']');
+
+      // For each plugin found, initialize it
+      $elem.each(function () {
+        var $el = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this),
+            opts = {};
+        // Don't double-dip on plugins
+        if ($el.data('zfPlugin')) {
+          console.warn("Tried to initialize " + name + " on an element that already has a Foundation plugin.");
+          return;
+        }
+
+        if ($el.attr('data-options')) {
+          var thing = $el.attr('data-options').split(';').forEach(function (e, i) {
+            var opt = e.split(':').map(function (el) {
+              return el.trim();
+            });
+            if (opt[0]) opts[opt[0]] = parseValue(opt[1]);
+          });
+        }
+        try {
+          $el.data('zfPlugin', new plugin(__WEBPACK_IMPORTED_MODULE_0_jquery___default()(this), opts));
+        } catch (er) {
+          console.error(er);
+        } finally {
+          return;
+        }
+      });
+    });
+  },
+  getFnName: functionName,
+
+  addToJquery: function ($) {
+    // TODO: consider not making this a jQuery function
+    // TODO: need way to reflow vs. re-initialize
+    /**
+     * The Foundation jQuery method.
+     * @param {String|Array} method - An action to perform on the current jQuery object.
+     */
+    var foundation = function (method) {
+      var type = typeof method,
+          $noJS = $('.no-js');
+
+      if ($noJS.length) {
+        $noJS.removeClass('no-js');
+      }
+
+      if (type === 'undefined') {
+        //needs to initialize the Foundation object, or an individual plugin.
+        __WEBPACK_IMPORTED_MODULE_2__foundation_util_mediaQuery__["a" /* MediaQuery */]._init();
+        Foundation.reflow(this);
+      } else if (type === 'string') {
+        //an individual method to invoke on a plugin or group of plugins
+        var args = Array.prototype.slice.call(arguments, 1); //collect all the arguments, if necessary
+        var plugClass = this.data('zfPlugin'); //determine the class of plugin
+
+        if (plugClass !== undefined && plugClass[method] !== undefined) {
+          //make sure both the class and method exist
+          if (this.length === 1) {
+            //if there's only one, call it directly.
+            plugClass[method].apply(plugClass, args);
+          } else {
+            this.each(function (i, el) {
+              //otherwise loop through the jQuery collection and invoke the method on each
+              plugClass[method].apply($(el).data('zfPlugin'), args);
+            });
+          }
+        } else {
+          //error for no class or no method
+          throw new ReferenceError("We're sorry, '" + method + "' is not an available method for " + (plugClass ? functionName(plugClass) : 'this element') + '.');
+        }
+      } else {
+        //error for invalid argument type
+        throw new TypeError('We\'re sorry, ' + type + ' is not a valid parameter. You must use a string representing the method you wish to invoke.');
+      }
+      return this;
+    };
+    $.fn.foundation = foundation;
+    return $;
+  }
+};
+
+Foundation.util = {
+  /**
+   * Function for applying a debounce effect to a function call.
+   * @function
+   * @param {Function} func - Function to be called at end of timeout.
+   * @param {Number} delay - Time in ms to delay the call of `func`.
+   * @returns function
+   */
+  throttle: function (func, delay) {
+    var timer = null;
+
+    return function () {
+      var context = this,
+          args = arguments;
+
+      if (timer === null) {
+        timer = setTimeout(function () {
+          func.apply(context, args);
+          timer = null;
+        }, delay);
+      }
+    };
+  }
+};
+
+window.Foundation = Foundation;
+
+// Polyfill for requestAnimationFrame
+(function () {
+  if (!Date.now || !window.Date.now) window.Date.now = Date.now = function () {
+    return new Date().getTime();
+  };
+
+  var vendors = ['webkit', 'moz'];
+  for (var i = 0; i < vendors.length && !window.requestAnimationFrame; ++i) {
+    var vp = vendors[i];
+    window.requestAnimationFrame = window[vp + 'RequestAnimationFrame'];
+    window.cancelAnimationFrame = window[vp + 'CancelAnimationFrame'] || window[vp + 'CancelRequestAnimationFrame'];
+  }
+  if (/iP(ad|hone|od).*OS 6/.test(window.navigator.userAgent) || !window.requestAnimationFrame || !window.cancelAnimationFrame) {
+    var lastTime = 0;
+    window.requestAnimationFrame = function (callback) {
+      var now = Date.now();
+      var nextTime = Math.max(lastTime + 16, now);
+      return setTimeout(function () {
+        callback(lastTime = nextTime);
+      }, nextTime - now);
+    };
+    window.cancelAnimationFrame = clearTimeout;
+  }
+  /**
+   * Polyfill for performance.now, required by rAF
+   */
+  if (!window.performance || !window.performance.now) {
+    window.performance = {
+      start: Date.now(),
+      now: function () {
+        return Date.now() - this.start;
+      }
+    };
+  }
+})();
+if (!Function.prototype.bind) {
+  Function.prototype.bind = function (oThis) {
+    if (typeof this !== 'function') {
+      // closest thing possible to the ECMAScript 5
+      // internal IsCallable function
+      throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
+    }
+
+    var aArgs = Array.prototype.slice.call(arguments, 1),
+        fToBind = this,
+        fNOP = function () {},
+        fBound = function () {
+      return fToBind.apply(this instanceof fNOP ? this : oThis, aArgs.concat(Array.prototype.slice.call(arguments)));
+    };
+
+    if (this.prototype) {
+      // native functions don't have a prototype
+      fNOP.prototype = this.prototype;
+    }
+    fBound.prototype = new fNOP();
+
+    return fBound;
+  };
+}
+// Polyfill to get the name of a function in IE9
+function functionName(fn) {
+  if (Function.prototype.name === undefined) {
+    var funcNameRegex = /function\s([^(]{1,})\(/;
+    var results = funcNameRegex.exec(fn.toString());
+    return results && results.length > 1 ? results[1].trim() : "";
+  } else if (fn.prototype === undefined) {
+    return fn.constructor.name;
+  } else {
+    return fn.prototype.constructor.name;
+  }
+}
+function parseValue(str) {
+  if ('true' === str) return true;else if ('false' === str) return false;else if (!isNaN(str * 1)) return parseFloat(str);
+  return str;
+}
+// Convert PascalCase to kebab-case
+// Thank you: http://stackoverflow.com/a/8955580
+function hyphenate(str) {
+  return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+}
+
+
+
+/***/ }),
+/* 20 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Dropdown; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_core__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__foundation_positionable__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__foundation_util_triggers__ = __webpack_require__(5);
+
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+
+
+
+
+
+
+
+/**
+ * Dropdown module.
+ * @module foundation.dropdown
+ * @requires foundation.util.keyboard
+ * @requires foundation.util.box
+ * @requires foundation.util.triggers
+ */
+
+var Dropdown = function (_Positionable) {
+  _inherits(Dropdown, _Positionable);
+
+  function Dropdown() {
+    _classCallCheck(this, Dropdown);
+
+    return _possibleConstructorReturn(this, (Dropdown.__proto__ || Object.getPrototypeOf(Dropdown)).apply(this, arguments));
+  }
+
+  _createClass(Dropdown, [{
+    key: '_setup',
+
+    /**
+     * Creates a new instance of a dropdown.
+     * @class
+     * @name Dropdown
+     * @param {jQuery} element - jQuery object to make into a dropdown.
+     *        Object should be of the dropdown panel, rather than its anchor.
+     * @param {Object} options - Overrides to the default plugin settings.
+     */
+    value: function _setup(element, options) {
+      this.$element = element;
+      this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, Dropdown.defaults, this.$element.data(), options);
+      this.className = 'Dropdown'; // ie9 back compat
+
+      // Triggers init is idempotent, just need to make sure it is initialized
+      __WEBPACK_IMPORTED_MODULE_4__foundation_util_triggers__["a" /* Triggers */].init(__WEBPACK_IMPORTED_MODULE_0_jquery___default.a);
+
+      this._init();
+
+      __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__["a" /* Keyboard */].register('Dropdown', {
+        'ENTER': 'open',
+        'SPACE': 'open',
+        'ESCAPE': 'close'
+      });
+    }
+
+    /**
+     * Initializes the plugin by setting/checking options and attributes, adding helper variables, and saving the anchor.
