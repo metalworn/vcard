@@ -4931,3 +4931,288 @@ var Abide = function (_Plugin) {
 
   }, {
     key: 'matchValidation',
+    value: function matchValidation($el, validators, required) {
+      var _this6 = this;
+
+      required = required ? true : false;
+
+      var clear = validators.split(' ').map(function (v) {
+        return _this6.options.validators[v]($el, required, $el.parent());
+      });
+      return clear.indexOf(false) === -1;
+    }
+
+    /**
+     * Resets form inputs and styles
+     * @fires Abide#formreset
+     */
+
+  }, {
+    key: 'resetForm',
+    value: function resetForm() {
+      var $form = this.$element,
+          opts = this.options;
+
+      __WEBPACK_IMPORTED_MODULE_0_jquery___default()('.' + opts.labelErrorClass, $form).not('small').removeClass(opts.labelErrorClass);
+      __WEBPACK_IMPORTED_MODULE_0_jquery___default()('.' + opts.inputErrorClass, $form).not('small').removeClass(opts.inputErrorClass);
+      __WEBPACK_IMPORTED_MODULE_0_jquery___default()(opts.formErrorSelector + '.' + opts.formErrorClass).removeClass(opts.formErrorClass);
+      $form.find('[data-abide-error]').css('display', 'none');
+      __WEBPACK_IMPORTED_MODULE_0_jquery___default()(':input', $form).not(':button, :submit, :reset, :hidden, :radio, :checkbox, [data-abide-ignore]').val('').removeAttr('data-invalid');
+      __WEBPACK_IMPORTED_MODULE_0_jquery___default()(':input:radio', $form).not('[data-abide-ignore]').prop('checked', false).removeAttr('data-invalid');
+      __WEBPACK_IMPORTED_MODULE_0_jquery___default()(':input:checkbox', $form).not('[data-abide-ignore]').prop('checked', false).removeAttr('data-invalid');
+      /**
+       * Fires when the form has been reset.
+       * @event Abide#formreset
+       */
+      $form.trigger('formreset.zf.abide', [$form]);
+    }
+
+    /**
+     * Destroys an instance of Abide.
+     * Removes error styles and classes from elements, without resetting their values.
+     */
+
+  }, {
+    key: '_destroy',
+    value: function _destroy() {
+      var _this = this;
+      this.$element.off('.abide').find('[data-abide-error]').css('display', 'none');
+
+      this.$inputs.off('.abide').each(function () {
+        _this.removeErrorClasses(__WEBPACK_IMPORTED_MODULE_0_jquery___default()(this));
+      });
+    }
+  }]);
+
+  return Abide;
+}(__WEBPACK_IMPORTED_MODULE_1__foundation_plugin__["a" /* Plugin */]);
+
+/**
+ * Default settings for plugin
+ */
+
+
+Abide.defaults = {
+  /**
+   * The default event to validate inputs. Checkboxes and radios validate immediately.
+   * Remove or change this value for manual validation.
+   * @option
+   * @type {?string}
+   * @default 'fieldChange'
+   */
+  validateOn: 'fieldChange',
+
+  /**
+   * Class to be applied to input labels on failed validation.
+   * @option
+   * @type {string}
+   * @default 'is-invalid-label'
+   */
+  labelErrorClass: 'is-invalid-label',
+
+  /**
+   * Class to be applied to inputs on failed validation.
+   * @option
+   * @type {string}
+   * @default 'is-invalid-input'
+   */
+  inputErrorClass: 'is-invalid-input',
+
+  /**
+   * Class selector to use to target Form Errors for show/hide.
+   * @option
+   * @type {string}
+   * @default '.form-error'
+   */
+  formErrorSelector: '.form-error',
+
+  /**
+   * Class added to Form Errors on failed validation.
+   * @option
+   * @type {string}
+   * @default 'is-visible'
+   */
+  formErrorClass: 'is-visible',
+
+  /**
+   * Set to true to validate text inputs on any value change.
+   * @option
+   * @type {boolean}
+   * @default false
+   */
+  liveValidate: false,
+
+  /**
+   * Set to true to validate inputs on blur.
+   * @option
+   * @type {boolean}
+   * @default false
+   */
+  validateOnBlur: false,
+
+  patterns: {
+    alpha: /^[a-zA-Z]+$/,
+    alpha_numeric: /^[a-zA-Z0-9]+$/,
+    integer: /^[-+]?\d+$/,
+    number: /^[-+]?\d*(?:[\.\,]\d+)?$/,
+
+    // amex, visa, diners
+    card: /^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|(?:222[1-9]|2[3-6][0-9]{2}|27[0-1][0-9]|2720)[0-9]{12}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35\d{3})\d{11})$/,
+    cvv: /^([0-9]){3,4}$/,
+
+    // http://www.whatwg.org/specs/web-apps/current-work/multipage/states-of-the-type-attribute.html#valid-e-mail-address
+    email: /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/,
+
+    url: /^(https?|ftp|file|ssh):\/\/(((([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-zA-Z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-zA-Z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-zA-Z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-zA-Z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-zA-Z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-zA-Z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/,
+    // abc.de
+    domain: /^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,8}$/,
+
+    datetime: /^([0-2][0-9]{3})\-([0-1][0-9])\-([0-3][0-9])T([0-5][0-9])\:([0-5][0-9])\:([0-5][0-9])(Z|([\-\+]([0-1][0-9])\:00))$/,
+    // YYYY-MM-DD
+    date: /(?:19|20)[0-9]{2}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-9])|(?:(?!02)(?:0[1-9]|1[0-2])-(?:30))|(?:(?:0[13578]|1[02])-31))$/,
+    // HH:MM:SS
+    time: /^(0[0-9]|1[0-9]|2[0-3])(:[0-5][0-9]){2}$/,
+    dateISO: /^\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}$/,
+    // MM/DD/YYYY
+    month_day_year: /^(0[1-9]|1[012])[- \/.](0[1-9]|[12][0-9]|3[01])[- \/.]\d{4}$/,
+    // DD/MM/YYYY
+    day_month_year: /^(0[1-9]|[12][0-9]|3[01])[- \/.](0[1-9]|1[012])[- \/.]\d{4}$/,
+
+    // #FFF or #FFFFFF
+    color: /^#?([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$/,
+
+    // Domain || URL
+    website: {
+      test: function (text) {
+        return Abide.defaults.patterns['domain'].test(text) || Abide.defaults.patterns['url'].test(text);
+      }
+    }
+  },
+
+  /**
+   * Optional validation functions to be used. `equalTo` being the only default included function.
+   * Functions should return only a boolean if the input is valid or not. Functions are given the following arguments:
+   * el : The jQuery element to validate.
+   * required : Boolean value of the required attribute be present or not.
+   * parent : The direct parent of the input.
+   * @option
+   */
+  validators: {
+    equalTo: function (el, required, parent) {
+      return __WEBPACK_IMPORTED_MODULE_0_jquery___default()('#' + el.attr('data-equalto')).val() === el.val();
+    }
+  }
+};
+
+
+
+/***/ }),
+/* 19 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Foundation; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_core__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_mediaQuery__ = __webpack_require__(3);
+
+
+
+
+
+
+var FOUNDATION_VERSION = '6.4.2';
+
+// Global Foundation object
+// This is attached to the window, or used as a module for AMD/Browserify
+var Foundation = {
+  version: FOUNDATION_VERSION,
+
+  /**
+   * Stores initialized plugins.
+   */
+  _plugins: {},
+
+  /**
+   * Stores generated unique ids for plugin instances
+   */
+  _uuids: [],
+
+  /**
+   * Defines a Foundation plugin, adding it to the `Foundation` namespace and the list of plugins to initialize when reflowing.
+   * @param {Object} plugin - The constructor of the plugin.
+   */
+  plugin: function (plugin, name) {
+    // Object key to use when adding to global Foundation object
+    // Examples: Foundation.Reveal, Foundation.OffCanvas
+    var className = name || functionName(plugin);
+    // Object key to use when storing the plugin, also used to create the identifying data attribute for the plugin
+    // Examples: data-reveal, data-off-canvas
+    var attrName = hyphenate(className);
+
+    // Add to the Foundation object and the plugins list (for reflowing)
+    this._plugins[attrName] = this[className] = plugin;
+  },
+  /**
+   * @function
+   * Populates the _uuids array with pointers to each individual plugin instance.
+   * Adds the `zfPlugin` data-attribute to programmatically created plugins to allow use of $(selector).foundation(method) calls.
+   * Also fires the initialization event for each plugin, consolidating repetitive code.
+   * @param {Object} plugin - an instance of a plugin, usually `this` in context.
+   * @param {String} name - the name of the plugin, passed as a camelCased string.
+   * @fires Plugin#init
+   */
+  registerPlugin: function (plugin, name) {
+    var pluginName = name ? hyphenate(name) : functionName(plugin.constructor).toLowerCase();
+    plugin.uuid = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__foundation_util_core__["a" /* GetYoDigits */])(6, pluginName);
+
+    if (!plugin.$element.attr('data-' + pluginName)) {
+      plugin.$element.attr('data-' + pluginName, plugin.uuid);
+    }
+    if (!plugin.$element.data('zfPlugin')) {
+      plugin.$element.data('zfPlugin', plugin);
+    }
+    /**
+     * Fires when the plugin has initialized.
+     * @event Plugin#init
+     */
+    plugin.$element.trigger('init.zf.' + pluginName);
+
+    this._uuids.push(plugin.uuid);
+
+    return;
+  },
+  /**
+   * @function
+   * Removes the plugins uuid from the _uuids array.
+   * Removes the zfPlugin data attribute, as well as the data-plugin-name attribute.
+   * Also fires the destroyed event for the plugin, consolidating repetitive code.
+   * @param {Object} plugin - an instance of a plugin, usually `this` in context.
+   * @fires Plugin#destroyed
+   */
+  unregisterPlugin: function (plugin) {
+    var pluginName = hyphenate(functionName(plugin.$element.data('zfPlugin').constructor));
+
+    this._uuids.splice(this._uuids.indexOf(plugin.uuid), 1);
+    plugin.$element.removeAttr('data-' + pluginName).removeData('zfPlugin')
+    /**
+     * Fires when the plugin has been destroyed.
+     * @event Plugin#destroyed
+     */
+    .trigger('destroyed.zf.' + pluginName);
+    for (var prop in plugin) {
+      plugin[prop] = null; //clean up script to prep for garbage collection.
+    }
+    return;
+  },
+
+  /**
+   * @function
+   * Causes one or more active plugins to re-initialize, resetting event listeners, recalculating positions, etc.
+   * @param {String} plugins - optional string of an individual plugin key, attained by calling `$(element).data('pluginName')`, or string of a plugin class i.e. `'dropdown'`
+   * @default If no argument is passed, reflow all currently active plugins.
+   */
+  reInit: function (plugins) {
+    var isJQ = plugins instanceof __WEBPACK_IMPORTED_MODULE_0_jquery___default.a;
+    try {
