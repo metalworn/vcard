@@ -5857,3 +5857,305 @@ Dropdown.defaults = {
    */
   hoverPane: false,
   /**
+   * Number of pixels between the dropdown pane and the triggering element on open.
+   * @option
+   * @type {number}
+   * @default 0
+   */
+  vOffset: 0,
+  /**
+   * Number of pixels between the dropdown pane and the triggering element on open.
+   * @option
+   * @type {number}
+   * @default 0
+   */
+  hOffset: 0,
+  /**
+   * DEPRECATED: Class applied to adjust open position.
+   * @option
+   * @type {string}
+   * @default ''
+   */
+  positionClass: '',
+
+  /**
+   * Position of dropdown. Can be left, right, bottom, top, or auto.
+   * @option
+   * @type {string}
+   * @default 'auto'
+   */
+  position: 'auto',
+  /**
+   * Alignment of dropdown relative to anchor. Can be left, right, bottom, top, center, or auto.
+   * @option
+   * @type {string}
+   * @default 'auto'
+   */
+  alignment: 'auto',
+  /**
+   * Allow overlap of container/window. If false, dropdown will first try to position as defined by data-position and data-alignment, but reposition if it would cause an overflow.
+   * @option
+   * @type {boolean}
+   * @default false
+   */
+  allowOverlap: false,
+  /**
+   * Allow overlap of only the bottom of the container. This is the most common
+   * behavior for dropdowns, allowing the dropdown to extend the bottom of the
+   * screen but not otherwise influence or break out of the container.
+   * @option
+   * @type {boolean}
+   * @default true
+   */
+  allowBottomOverlap: true,
+  /**
+   * Allow the plugin to trap focus to the dropdown pane if opened with keyboard commands.
+   * @option
+   * @type {boolean}
+   * @default false
+   */
+  trapFocus: false,
+  /**
+   * Allow the plugin to set focus to the first focusable element within the pane, regardless of method of opening.
+   * @option
+   * @type {boolean}
+   * @default false
+   */
+  autoFocus: false,
+  /**
+   * Allows a click on the body to close the dropdown.
+   * @option
+   * @type {boolean}
+   * @default false
+   */
+  closeOnClick: false
+};
+
+
+
+/***/ }),
+/* 21 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Equalizer; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_mediaQuery__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_imageLoader__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__foundation_util_core__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__foundation_plugin__ = __webpack_require__(2);
+
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+
+
+
+
+
+
+/**
+ * Equalizer module.
+ * @module foundation.equalizer
+ * @requires foundation.util.mediaQuery
+ * @requires foundation.util.imageLoader if equalizer contains images
+ */
+
+var Equalizer = function (_Plugin) {
+  _inherits(Equalizer, _Plugin);
+
+  function Equalizer() {
+    _classCallCheck(this, Equalizer);
+
+    return _possibleConstructorReturn(this, (Equalizer.__proto__ || Object.getPrototypeOf(Equalizer)).apply(this, arguments));
+  }
+
+  _createClass(Equalizer, [{
+    key: '_setup',
+
+    /**
+     * Creates a new instance of Equalizer.
+     * @class
+     * @name Equalizer
+     * @fires Equalizer#init
+     * @param {Object} element - jQuery object to add the trigger to.
+     * @param {Object} options - Overrides to the default plugin settings.
+     */
+    value: function _setup(element, options) {
+      this.$element = element;
+      this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, Equalizer.defaults, this.$element.data(), options);
+      this.className = 'Equalizer'; // ie9 back compat
+
+      this._init();
+    }
+
+    /**
+     * Initializes the Equalizer plugin and calls functions to get equalizer functioning on load.
+     * @private
+     */
+
+  }, {
+    key: '_init',
+    value: function _init() {
+      var eqId = this.$element.attr('data-equalizer') || '';
+      var $watched = this.$element.find('[data-equalizer-watch="' + eqId + '"]');
+
+      __WEBPACK_IMPORTED_MODULE_1__foundation_util_mediaQuery__["a" /* MediaQuery */]._init();
+
+      this.$watched = $watched.length ? $watched : this.$element.find('[data-equalizer-watch]');
+      this.$element.attr('data-resize', eqId || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["a" /* GetYoDigits */])(6, 'eq'));
+      this.$element.attr('data-mutate', eqId || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["a" /* GetYoDigits */])(6, 'eq'));
+
+      this.hasNested = this.$element.find('[data-equalizer]').length > 0;
+      this.isNested = this.$element.parentsUntil(document.body, '[data-equalizer]').length > 0;
+      this.isOn = false;
+      this._bindHandler = {
+        onResizeMeBound: this._onResizeMe.bind(this),
+        onPostEqualizedBound: this._onPostEqualized.bind(this)
+      };
+
+      var imgs = this.$element.find('img');
+      var tooSmall;
+      if (this.options.equalizeOn) {
+        tooSmall = this._checkMQ();
+        __WEBPACK_IMPORTED_MODULE_0_jquery___default()(window).on('changed.zf.mediaquery', this._checkMQ.bind(this));
+      } else {
+        this._events();
+      }
+      if (tooSmall !== undefined && tooSmall === false || tooSmall === undefined) {
+        if (imgs.length) {
+          __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__foundation_util_imageLoader__["a" /* onImagesLoaded */])(imgs, this._reflow.bind(this));
+        } else {
+          this._reflow();
+        }
+      }
+    }
+
+    /**
+     * Removes event listeners if the breakpoint is too small.
+     * @private
+     */
+
+  }, {
+    key: '_pauseEvents',
+    value: function _pauseEvents() {
+      this.isOn = false;
+      this.$element.off({
+        '.zf.equalizer': this._bindHandler.onPostEqualizedBound,
+        'resizeme.zf.trigger': this._bindHandler.onResizeMeBound,
+        'mutateme.zf.trigger': this._bindHandler.onResizeMeBound
+      });
+    }
+
+    /**
+     * function to handle $elements resizeme.zf.trigger, with bound this on _bindHandler.onResizeMeBound
+     * @private
+     */
+
+  }, {
+    key: '_onResizeMe',
+    value: function _onResizeMe(e) {
+      this._reflow();
+    }
+
+    /**
+     * function to handle $elements postequalized.zf.equalizer, with bound this on _bindHandler.onPostEqualizedBound
+     * @private
+     */
+
+  }, {
+    key: '_onPostEqualized',
+    value: function _onPostEqualized(e) {
+      if (e.target !== this.$element[0]) {
+        this._reflow();
+      }
+    }
+
+    /**
+     * Initializes events for Equalizer.
+     * @private
+     */
+
+  }, {
+    key: '_events',
+    value: function _events() {
+      var _this = this;
+      this._pauseEvents();
+      if (this.hasNested) {
+        this.$element.on('postequalized.zf.equalizer', this._bindHandler.onPostEqualizedBound);
+      } else {
+        this.$element.on('resizeme.zf.trigger', this._bindHandler.onResizeMeBound);
+        this.$element.on('mutateme.zf.trigger', this._bindHandler.onResizeMeBound);
+      }
+      this.isOn = true;
+    }
+
+    /**
+     * Checks the current breakpoint to the minimum required size.
+     * @private
+     */
+
+  }, {
+    key: '_checkMQ',
+    value: function _checkMQ() {
+      var tooSmall = !__WEBPACK_IMPORTED_MODULE_1__foundation_util_mediaQuery__["a" /* MediaQuery */].is(this.options.equalizeOn);
+      if (tooSmall) {
+        if (this.isOn) {
+          this._pauseEvents();
+          this.$watched.css('height', 'auto');
+        }
+      } else {
+        if (!this.isOn) {
+          this._events();
+        }
+      }
+      return tooSmall;
+    }
+
+    /**
+     * A noop version for the plugin
+     * @private
+     */
+
+  }, {
+    key: '_killswitch',
+    value: function _killswitch() {
+      return;
+    }
+
+    /**
+     * Calls necessary functions to update Equalizer upon DOM change
+     * @private
+     */
+
+  }, {
+    key: '_reflow',
+    value: function _reflow() {
+      if (!this.options.equalizeOnStack) {
+        if (this._isStacked()) {
+          this.$watched.css('height', 'auto');
+          return false;
+        }
+      }
+      if (this.options.equalizeByRow) {
+        this.getHeightsByRow(this.applyHeightByRow.bind(this));
+      } else {
+        this.getHeights(this.applyHeight.bind(this));
+      }
+    }
+
+    /**
+     * Manually determines if the first 2 elements are *NOT* stacked.
+     * @private
+     */
+
+  }, {
+    key: '_isStacked',
+    value: function _isStacked() {
