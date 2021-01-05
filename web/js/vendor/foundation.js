@@ -6452,3 +6452,292 @@ var Interchange = function (_Plugin) {
           var rule = this.rules[i];
           if (window.matchMedia(rule.query).matches) {
             match = rule;
+          }
+        }
+      }
+
+      if (match) {
+        this.replace(match.path);
+      }
+    }
+
+    /**
+     * Gets the Foundation breakpoints and adds them to the Interchange.SPECIAL_QUERIES object.
+     * @function
+     * @private
+     */
+
+  }, {
+    key: '_addBreakpoints',
+    value: function _addBreakpoints() {
+      for (var i in __WEBPACK_IMPORTED_MODULE_1__foundation_util_mediaQuery__["a" /* MediaQuery */].queries) {
+        if (__WEBPACK_IMPORTED_MODULE_1__foundation_util_mediaQuery__["a" /* MediaQuery */].queries.hasOwnProperty(i)) {
+          var query = __WEBPACK_IMPORTED_MODULE_1__foundation_util_mediaQuery__["a" /* MediaQuery */].queries[i];
+          Interchange.SPECIAL_QUERIES[query.name] = query.value;
+        }
+      }
+    }
+
+    /**
+     * Checks the Interchange element for the provided media query + content pairings
+     * @function
+     * @private
+     * @param {Object} element - jQuery object that is an Interchange instance
+     * @returns {Array} scenarios - Array of objects that have 'mq' and 'path' keys with corresponding keys
+     */
+
+  }, {
+    key: '_generateRules',
+    value: function _generateRules(element) {
+      var rulesList = [];
+      var rules;
+
+      if (this.options.rules) {
+        rules = this.options.rules;
+      } else {
+        rules = this.$element.data('interchange');
+      }
+
+      rules = typeof rules === 'string' ? rules.match(/\[.*?\]/g) : rules;
+
+      for (var i in rules) {
+        if (rules.hasOwnProperty(i)) {
+          var rule = rules[i].slice(1, -1).split(', ');
+          var path = rule.slice(0, -1).join('');
+          var query = rule[rule.length - 1];
+
+          if (Interchange.SPECIAL_QUERIES[query]) {
+            query = Interchange.SPECIAL_QUERIES[query];
+          }
+
+          rulesList.push({
+            path: path,
+            query: query
+          });
+        }
+      }
+
+      this.rules = rulesList;
+    }
+
+    /**
+     * Update the `src` property of an image, or change the HTML of a container, to the specified path.
+     * @function
+     * @param {String} path - Path to the image or HTML partial.
+     * @fires Interchange#replaced
+     */
+
+  }, {
+    key: 'replace',
+    value: function replace(path) {
+      if (this.currentPath === path) return;
+
+      var _this = this,
+          trigger = 'replaced.zf.interchange';
+
+      // Replacing images
+      if (this.$element[0].nodeName === 'IMG') {
+        this.$element.attr('src', path).on('load', function () {
+          _this.currentPath = path;
+        }).trigger(trigger);
+      }
+      // Replacing background images
+      else if (path.match(/\.(gif|jpg|jpeg|png|svg|tiff)([?#].*)?/i)) {
+          path = path.replace(/\(/g, '%28').replace(/\)/g, '%29');
+          this.$element.css({ 'background-image': 'url(' + path + ')' }).trigger(trigger);
+        }
+        // Replacing HTML
+        else {
+            __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.get(path, function (response) {
+              _this.$element.html(response).trigger(trigger);
+              __WEBPACK_IMPORTED_MODULE_0_jquery___default()(response).foundation();
+              _this.currentPath = path;
+            });
+          }
+
+      /**
+       * Fires when content in an Interchange element is done being loaded.
+       * @event Interchange#replaced
+       */
+      // this.$element.trigger('replaced.zf.interchange');
+    }
+
+    /**
+     * Destroys an instance of interchange.
+     * @function
+     */
+
+  }, {
+    key: '_destroy',
+    value: function _destroy() {
+      this.$element.off('resizeme.zf.trigger');
+    }
+  }]);
+
+  return Interchange;
+}(__WEBPACK_IMPORTED_MODULE_2__foundation_plugin__["a" /* Plugin */]);
+
+/**
+ * Default settings for plugin
+ */
+
+
+Interchange.defaults = {
+  /**
+   * Rules to be applied to Interchange elements. Set with the `data-interchange` array notation.
+   * @option
+   * @type {?array}
+   * @default null
+   */
+  rules: null
+};
+
+Interchange.SPECIAL_QUERIES = {
+  'landscape': 'screen and (orientation: landscape)',
+  'portrait': 'screen and (orientation: portrait)',
+  'retina': 'only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx)'
+};
+
+
+
+/***/ }),
+/* 23 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Magellan; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_core__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_plugin__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__foundation_smoothScroll__ = __webpack_require__(14);
+
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+
+
+
+
+
+/**
+ * Magellan module.
+ * @module foundation.magellan
+ * @requires foundation.smoothScroll
+ */
+
+var Magellan = function (_Plugin) {
+  _inherits(Magellan, _Plugin);
+
+  function Magellan() {
+    _classCallCheck(this, Magellan);
+
+    return _possibleConstructorReturn(this, (Magellan.__proto__ || Object.getPrototypeOf(Magellan)).apply(this, arguments));
+  }
+
+  _createClass(Magellan, [{
+    key: '_setup',
+
+    /**
+     * Creates a new instance of Magellan.
+     * @class
+     * @name Magellan
+     * @fires Magellan#init
+     * @param {Object} element - jQuery object to add the trigger to.
+     * @param {Object} options - Overrides to the default plugin settings.
+     */
+    value: function _setup(element, options) {
+      this.$element = element;
+      this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, Magellan.defaults, this.$element.data(), options);
+      this.className = 'Magellan'; // ie9 back compat
+
+      this._init();
+      this.calcPoints();
+    }
+
+    /**
+     * Initializes the Magellan plugin and calls functions to get equalizer functioning on load.
+     * @private
+     */
+
+  }, {
+    key: '_init',
+    value: function _init() {
+      var id = this.$element[0].id || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__foundation_util_core__["a" /* GetYoDigits */])(6, 'magellan');
+      var _this = this;
+      this.$targets = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('[data-magellan-target]');
+      this.$links = this.$element.find('a');
+      this.$element.attr({
+        'data-resize': id,
+        'data-scroll': id,
+        'id': id
+      });
+      this.$active = __WEBPACK_IMPORTED_MODULE_0_jquery___default()();
+      this.scrollPos = parseInt(window.pageYOffset, 10);
+
+      this._events();
+    }
+
+    /**
+     * Calculates an array of pixel values that are the demarcation lines between locations on the page.
+     * Can be invoked if new elements are added or the size of a location changes.
+     * @function
+     */
+
+  }, {
+    key: 'calcPoints',
+    value: function calcPoints() {
+      var _this = this,
+          body = document.body,
+          html = document.documentElement;
+
+      this.points = [];
+      this.winHeight = Math.round(Math.max(window.innerHeight, html.clientHeight));
+      this.docHeight = Math.round(Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight));
+
+      this.$targets.each(function () {
+        var $tar = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this),
+            pt = Math.round($tar.offset().top - _this.options.threshold);
+        $tar.targetPoint = pt;
+        _this.points.push(pt);
+      });
+    }
+
+    /**
+     * Initializes events for Magellan.
+     * @private
+     */
+
+  }, {
+    key: '_events',
+    value: function _events() {
+      var _this = this,
+          $body = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('html, body'),
+          opts = {
+        duration: _this.options.animationDuration,
+        easing: _this.options.animationEasing
+      };
+      __WEBPACK_IMPORTED_MODULE_0_jquery___default()(window).one('load', function () {
+        if (_this.options.deepLinking) {
+          if (location.hash) {
+            _this.scrollToLoc(location.hash);
+          }
+        }
+        _this.calcPoints();
+        _this._updateActive();
+      });
+
+      this.$element.on({
+        'resizeme.zf.trigger': this.reflow.bind(this),
+        'scrollme.zf.trigger': this._updateActive.bind(this)
+      }).on('click.zf.magellan', 'a[href^="#"]', function (e) {
+        e.preventDefault();
+        var arrival = this.getAttribute('href');
+        _this.scrollToLoc(arrival);
+      });
