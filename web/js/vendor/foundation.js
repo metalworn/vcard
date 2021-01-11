@@ -6741,3 +6741,298 @@ var Magellan = function (_Plugin) {
         var arrival = this.getAttribute('href');
         _this.scrollToLoc(arrival);
       });
+
+      this._deepLinkScroll = function (e) {
+        if (_this.options.deepLinking) {
+          _this.scrollToLoc(window.location.hash);
+        }
+      };
+
+      __WEBPACK_IMPORTED_MODULE_0_jquery___default()(window).on('popstate', this._deepLinkScroll);
+    }
+
+    /**
+     * Function to scroll to a given location on the page.
+     * @param {String} loc - a properly formatted jQuery id selector. Example: '#foo'
+     * @function
+     */
+
+  }, {
+    key: 'scrollToLoc',
+    value: function scrollToLoc(loc) {
+      this._inTransition = true;
+      var _this = this;
+
+      var options = {
+        animationEasing: this.options.animationEasing,
+        animationDuration: this.options.animationDuration,
+        threshold: this.options.threshold,
+        offset: this.options.offset
+      };
+
+      __WEBPACK_IMPORTED_MODULE_3__foundation_smoothScroll__["a" /* SmoothScroll */].scrollToLoc(loc, options, function () {
+        _this._inTransition = false;
+        _this._updateActive();
+      });
+    }
+
+    /**
+     * Calls necessary functions to update Magellan upon DOM change
+     * @function
+     */
+
+  }, {
+    key: 'reflow',
+    value: function reflow() {
+      this.calcPoints();
+      this._updateActive();
+    }
+
+    /**
+     * Updates the visibility of an active location link, and updates the url hash for the page, if deepLinking enabled.
+     * @private
+     * @function
+     * @fires Magellan#update
+     */
+
+  }, {
+    key: '_updateActive',
+    value: function _updateActive() /*evt, elem, scrollPos*/{
+      if (this._inTransition) {
+        return;
+      }
+      var winPos = /*scrollPos ||*/parseInt(window.pageYOffset, 10),
+          curIdx;
+
+      if (winPos + this.winHeight === this.docHeight) {
+        curIdx = this.points.length - 1;
+      } else if (winPos < this.points[0]) {
+        curIdx = undefined;
+      } else {
+        var isDown = this.scrollPos < winPos,
+            _this = this,
+            curVisible = this.points.filter(function (p, i) {
+          return isDown ? p - _this.options.offset <= winPos : p - _this.options.offset - _this.options.threshold <= winPos;
+        });
+        curIdx = curVisible.length ? curVisible.length - 1 : 0;
+      }
+
+      this.$active.removeClass(this.options.activeClass);
+      this.$active = this.$links.filter('[href="#' + this.$targets.eq(curIdx).data('magellan-target') + '"]').addClass(this.options.activeClass);
+
+      if (this.options.deepLinking) {
+        var hash = "";
+        if (curIdx != undefined) {
+          hash = this.$active[0].getAttribute('href');
+        }
+        if (hash !== window.location.hash) {
+          if (window.history.pushState) {
+            window.history.pushState(null, null, hash);
+          } else {
+            window.location.hash = hash;
+          }
+        }
+      }
+
+      this.scrollPos = winPos;
+      /**
+       * Fires when magellan is finished updating to the new active element.
+       * @event Magellan#update
+       */
+      this.$element.trigger('update.zf.magellan', [this.$active]);
+    }
+
+    /**
+     * Destroys an instance of Magellan and resets the url of the window.
+     * @function
+     */
+
+  }, {
+    key: '_destroy',
+    value: function _destroy() {
+      this.$element.off('.zf.trigger .zf.magellan').find('.' + this.options.activeClass).removeClass(this.options.activeClass);
+
+      if (this.options.deepLinking) {
+        var hash = this.$active[0].getAttribute('href');
+        window.location.hash.replace(hash, '');
+      }
+      __WEBPACK_IMPORTED_MODULE_0_jquery___default()(window).off('popstate', this._deepLinkScroll);
+    }
+  }]);
+
+  return Magellan;
+}(__WEBPACK_IMPORTED_MODULE_2__foundation_plugin__["a" /* Plugin */]);
+
+/**
+ * Default settings for plugin
+ */
+
+
+Magellan.defaults = {
+  /**
+   * Amount of time, in ms, the animated scrolling should take between locations.
+   * @option
+   * @type {number}
+   * @default 500
+   */
+  animationDuration: 500,
+  /**
+   * Animation style to use when scrolling between locations. Can be `'swing'` or `'linear'`.
+   * @option
+   * @type {string}
+   * @default 'linear'
+   * @see {@link https://api.jquery.com/animate|Jquery animate}
+   */
+  animationEasing: 'linear',
+  /**
+   * Number of pixels to use as a marker for location changes.
+   * @option
+   * @type {number}
+   * @default 50
+   */
+  threshold: 50,
+  /**
+   * Class applied to the active locations link on the magellan container.
+   * @option
+   * @type {string}
+   * @default 'is-active'
+   */
+  activeClass: 'is-active',
+  /**
+   * Allows the script to manipulate the url of the current page, and if supported, alter the history.
+   * @option
+   * @type {boolean}
+   * @default false
+   */
+  deepLinking: false,
+  /**
+   * Number of pixels to offset the scroll of the page on item click if using a sticky nav bar.
+   * @option
+   * @type {number}
+   * @default 0
+   */
+  offset: 0
+};
+
+
+
+/***/ }),
+/* 24 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return OffCanvas; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_mediaQuery__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__foundation_util_core__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__foundation_plugin__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__foundation_util_triggers__ = __webpack_require__(5);
+
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+
+
+
+
+
+
+
+
+/**
+ * OffCanvas module.
+ * @module foundation.offcanvas
+ * @requires foundation.util.keyboard
+ * @requires foundation.util.mediaQuery
+ * @requires foundation.util.triggers
+ */
+
+var OffCanvas = function (_Plugin) {
+  _inherits(OffCanvas, _Plugin);
+
+  function OffCanvas() {
+    _classCallCheck(this, OffCanvas);
+
+    return _possibleConstructorReturn(this, (OffCanvas.__proto__ || Object.getPrototypeOf(OffCanvas)).apply(this, arguments));
+  }
+
+  _createClass(OffCanvas, [{
+    key: '_setup',
+
+    /**
+     * Creates a new instance of an off-canvas wrapper.
+     * @class
+     * @name OffCanvas
+     * @fires OffCanvas#init
+     * @param {Object} element - jQuery object to initialize.
+     * @param {Object} options - Overrides to the default plugin settings.
+     */
+    value: function _setup(element, options) {
+      var _this3 = this;
+
+      this.className = 'OffCanvas'; // ie9 back compat
+      this.$element = element;
+      this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, OffCanvas.defaults, this.$element.data(), options);
+      this.contentClasses = { base: [], reveal: [] };
+      this.$lastTrigger = __WEBPACK_IMPORTED_MODULE_0_jquery___default()();
+      this.$triggers = __WEBPACK_IMPORTED_MODULE_0_jquery___default()();
+      this.position = 'left';
+      this.$content = __WEBPACK_IMPORTED_MODULE_0_jquery___default()();
+      this.nested = !!this.options.nested;
+
+      // Defines the CSS transition/position classes of the off-canvas content container.
+      __WEBPACK_IMPORTED_MODULE_0_jquery___default()(['push', 'overlap']).each(function (index, val) {
+        _this3.contentClasses.base.push('has-transition-' + val);
+      });
+      __WEBPACK_IMPORTED_MODULE_0_jquery___default()(['left', 'right', 'top', 'bottom']).each(function (index, val) {
+        _this3.contentClasses.base.push('has-position-' + val);
+        _this3.contentClasses.reveal.push('has-reveal-' + val);
+      });
+
+      // Triggers init is idempotent, just need to make sure it is initialized
+      __WEBPACK_IMPORTED_MODULE_5__foundation_util_triggers__["a" /* Triggers */].init(__WEBPACK_IMPORTED_MODULE_0_jquery___default.a);
+      __WEBPACK_IMPORTED_MODULE_2__foundation_util_mediaQuery__["a" /* MediaQuery */]._init();
+
+      this._init();
+      this._events();
+
+      __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__["a" /* Keyboard */].register('OffCanvas', {
+        'ESCAPE': 'close'
+      });
+    }
+
+    /**
+     * Initializes the off-canvas wrapper by adding the exit overlay (if needed).
+     * @function
+     * @private
+     */
+
+  }, {
+    key: '_init',
+    value: function _init() {
+      var id = this.$element.attr('id');
+
+      this.$element.attr('aria-hidden', 'true');
+
+      // Find off-canvas content, either by ID (if specified), by siblings or by closest selector (fallback)
+      if (this.options.contentId) {
+        this.$content = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('#' + this.options.contentId);
+      } else if (this.$element.siblings('[data-off-canvas-content]').length) {
+        this.$content = this.$element.siblings('[data-off-canvas-content]').first();
+      } else {
+        this.$content = this.$element.closest('[data-off-canvas-content]').first();
+      }
+
+      if (!this.options.contentId) {
+        // Assume that the off-canvas element is nested if it isn't a sibling of the content
+        this.nested = this.$element.siblings('[data-off-canvas-content]').length === 0;
+      } else if (this.options.contentId && this.options.nested === null) {
+        // Warning if using content ID without setting the nested option
