@@ -7324,3 +7324,342 @@ var OffCanvas = function (_Plugin) {
      * @function
      * @param {Function} cb - optional cb to fire after closure.
      * @fires OffCanvas#closed
+     */
+
+  }, {
+    key: 'close',
+    value: function close(cb) {
+      if (!this.$element.hasClass('is-open') || this.isRevealed) {
+        return;
+      }
+
+      var _this = this;
+
+      this.$element.removeClass('is-open');
+
+      this.$element.attr('aria-hidden', 'true')
+      /**
+       * Fires when the off-canvas menu opens.
+       * @event OffCanvas#closed
+       */
+      .trigger('closed.zf.offcanvas');
+
+      this.$content.removeClass('is-open-left is-open-top is-open-right is-open-bottom');
+
+      // If `contentScroll` is set to false, remove class and re-enable scrolling on touch devices.
+      if (this.options.contentScroll === false) {
+        __WEBPACK_IMPORTED_MODULE_0_jquery___default()('body').removeClass('is-off-canvas-open').off('touchmove', this._stopScrolling);
+        this.$element.off('touchstart', this._recordScrollable);
+        this.$element.off('touchmove', this._stopScrollPropagation);
+      }
+
+      if (this.options.contentOverlay === true) {
+        this.$overlay.removeClass('is-visible');
+      }
+
+      if (this.options.closeOnClick === true && this.options.contentOverlay === true) {
+        this.$overlay.removeClass('is-closable');
+      }
+
+      this.$triggers.attr('aria-expanded', 'false');
+
+      if (this.options.trapFocus === true) {
+        this.$content.removeAttr('tabindex');
+        __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__["a" /* Keyboard */].releaseFocus(this.$element);
+      }
+
+      // Listen to transitionEnd and add class when done.
+      this.$element.one(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["b" /* transitionend */])(this.$element), function (e) {
+        _this.$element.addClass('is-closed');
+        _this._removeContentClasses();
+      });
+    }
+
+    /**
+     * Toggles the off-canvas menu open or closed.
+     * @function
+     * @param {Object} event - Event object passed from listener.
+     * @param {jQuery} trigger - element that triggered the off-canvas to open.
+     */
+
+  }, {
+    key: 'toggle',
+    value: function toggle(event, trigger) {
+      if (this.$element.hasClass('is-open')) {
+        this.close(event, trigger);
+      } else {
+        this.open(event, trigger);
+      }
+    }
+
+    /**
+     * Handles keyboard input when detected. When the escape key is pressed, the off-canvas menu closes, and focus is restored to the element that opened the menu.
+     * @function
+     * @private
+     */
+
+  }, {
+    key: '_handleKeyboard',
+    value: function _handleKeyboard(e) {
+      var _this4 = this;
+
+      __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__["a" /* Keyboard */].handleKey(e, 'OffCanvas', {
+        close: function () {
+          _this4.close();
+          _this4.$lastTrigger.focus();
+          return true;
+        },
+        handled: function () {
+          e.stopPropagation();
+          e.preventDefault();
+        }
+      });
+    }
+
+    /**
+     * Destroys the offcanvas plugin.
+     * @function
+     */
+
+  }, {
+    key: '_destroy',
+    value: function _destroy() {
+      this.close();
+      this.$element.off('.zf.trigger .zf.offcanvas');
+      this.$overlay.off('.zf.offcanvas');
+    }
+  }]);
+
+  return OffCanvas;
+}(__WEBPACK_IMPORTED_MODULE_4__foundation_plugin__["a" /* Plugin */]);
+
+OffCanvas.defaults = {
+  /**
+   * Allow the user to click outside of the menu to close it.
+   * @option
+   * @type {boolean}
+   * @default true
+   */
+  closeOnClick: true,
+
+  /**
+   * Adds an overlay on top of `[data-off-canvas-content]`.
+   * @option
+   * @type {boolean}
+   * @default true
+   */
+  contentOverlay: true,
+
+  /**
+   * Target an off-canvas content container by ID that may be placed anywhere. If null the closest content container will be taken.
+   * @option
+   * @type {?string}
+   * @default null
+   */
+  contentId: null,
+
+  /**
+   * Define the off-canvas element is nested in an off-canvas content. This is required when using the contentId option for a nested element.
+   * @option
+   * @type {boolean}
+   * @default null
+   */
+  nested: null,
+
+  /**
+   * Enable/disable scrolling of the main content when an off canvas panel is open.
+   * @option
+   * @type {boolean}
+   * @default true
+   */
+  contentScroll: true,
+
+  /**
+   * Amount of time in ms the open and close transition requires. If none selected, pulls from body style.
+   * @option
+   * @type {number}
+   * @default null
+   */
+  transitionTime: null,
+
+  /**
+   * Type of transition for the offcanvas menu. Options are 'push', 'detached' or 'slide'.
+   * @option
+   * @type {string}
+   * @default push
+   */
+  transition: 'push',
+
+  /**
+   * Force the page to scroll to top or bottom on open.
+   * @option
+   * @type {?string}
+   * @default null
+   */
+  forceTo: null,
+
+  /**
+   * Allow the offcanvas to remain open for certain breakpoints.
+   * @option
+   * @type {boolean}
+   * @default false
+   */
+  isRevealed: false,
+
+  /**
+   * Breakpoint at which to reveal. JS will use a RegExp to target standard classes, if changing classnames, pass your class with the `revealClass` option.
+   * @option
+   * @type {?string}
+   * @default null
+   */
+  revealOn: null,
+
+  /**
+   * Force focus to the offcanvas on open. If true, will focus the opening trigger on close.
+   * @option
+   * @type {boolean}
+   * @default true
+   */
+  autoFocus: true,
+
+  /**
+   * Class used to force an offcanvas to remain open. Foundation defaults for this are `reveal-for-large` & `reveal-for-medium`.
+   * @option
+   * @type {string}
+   * @default reveal-for-
+   * @todo improve the regex testing for this.
+   */
+  revealClass: 'reveal-for-',
+
+  /**
+   * Triggers optional focus trapping when opening an offcanvas. Sets tabindex of [data-off-canvas-content] to -1 for accessibility purposes.
+   * @option
+   * @type {boolean}
+   * @default false
+   */
+  trapFocus: false
+};
+
+
+
+/***/ }),
+/* 25 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Orbit; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_motion__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__foundation_util_timer__ = __webpack_require__(34);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__foundation_util_imageLoader__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__foundation_util_core__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__foundation_plugin__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__foundation_util_touch__ = __webpack_require__(17);
+
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+
+
+
+
+
+
+
+
+
+/**
+ * Orbit module.
+ * @module foundation.orbit
+ * @requires foundation.util.keyboard
+ * @requires foundation.util.motion
+ * @requires foundation.util.timer
+ * @requires foundation.util.imageLoader
+ * @requires foundation.util.touch
+ */
+
+var Orbit = function (_Plugin) {
+  _inherits(Orbit, _Plugin);
+
+  function Orbit() {
+    _classCallCheck(this, Orbit);
+
+    return _possibleConstructorReturn(this, (Orbit.__proto__ || Object.getPrototypeOf(Orbit)).apply(this, arguments));
+  }
+
+  _createClass(Orbit, [{
+    key: '_setup',
+
+    /**
+    * Creates a new instance of an orbit carousel.
+    * @class
+    * @name Orbit
+    * @param {jQuery} element - jQuery object to make into an Orbit Carousel.
+    * @param {Object} options - Overrides to the default plugin settings.
+    */
+    value: function _setup(element, options) {
+      this.$element = element;
+      this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, Orbit.defaults, this.$element.data(), options);
+      this.className = 'Orbit'; // ie9 back compat
+
+      __WEBPACK_IMPORTED_MODULE_7__foundation_util_touch__["a" /* Touch */].init(__WEBPACK_IMPORTED_MODULE_0_jquery___default.a); // Touch init is idempotent, we just need to make sure it's initialied.
+
+      this._init();
+
+      __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__["a" /* Keyboard */].register('Orbit', {
+        'ltr': {
+          'ARROW_RIGHT': 'next',
+          'ARROW_LEFT': 'previous'
+        },
+        'rtl': {
+          'ARROW_LEFT': 'next',
+          'ARROW_RIGHT': 'previous'
+        }
+      });
+    }
+
+    /**
+    * Initializes the plugin by creating jQuery collections, setting attributes, and starting the animation.
+    * @function
+    * @private
+    */
+
+  }, {
+    key: '_init',
+    value: function _init() {
+      // @TODO: consider discussion on PR #9278 about DOM pollution by changeSlide
+      this._reset();
+
+      this.$wrapper = this.$element.find('.' + this.options.containerClass);
+      this.$slides = this.$element.find('.' + this.options.slideClass);
+
+      var $images = this.$element.find('img'),
+          initActive = this.$slides.filter('.is-active'),
+          id = this.$element[0].id || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__foundation_util_core__["a" /* GetYoDigits */])(6, 'orbit');
+
+      this.$element.attr({
+        'data-resize': id,
+        'id': id
+      });
+
+      if (!initActive.length) {
+        this.$slides.eq(0).addClass('is-active');
+      }
+
+      if (!this.options.useMUI) {
+        this.$slides.addClass('no-motionui');
+      }
+
+      if ($images.length) {
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__foundation_util_imageLoader__["a" /* onImagesLoaded */])($images, this._prepareForOrbit.bind(this));
+      } else {
+        this._prepareForOrbit(); //hehe
+      }
