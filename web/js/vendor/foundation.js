@@ -8921,3 +8921,320 @@ var Reveal = function (_Plugin) {
      */
 
   }, {
+    key: '_init',
+    value: function _init() {
+      __WEBPACK_IMPORTED_MODULE_2__foundation_util_mediaQuery__["a" /* MediaQuery */]._init();
+      this.id = this.$element.attr('id');
+      this.isActive = false;
+      this.cached = { mq: __WEBPACK_IMPORTED_MODULE_2__foundation_util_mediaQuery__["a" /* MediaQuery */].current };
+      this.isMobile = mobileSniff();
+
+      this.$anchor = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('[data-open="' + this.id + '"]').length ? __WEBPACK_IMPORTED_MODULE_0_jquery___default()('[data-open="' + this.id + '"]') : __WEBPACK_IMPORTED_MODULE_0_jquery___default()('[data-toggle="' + this.id + '"]');
+      this.$anchor.attr({
+        'aria-controls': this.id,
+        'aria-haspopup': true,
+        'tabindex': 0
+      });
+
+      if (this.options.fullScreen || this.$element.hasClass('full')) {
+        this.options.fullScreen = true;
+        this.options.overlay = false;
+      }
+      if (this.options.overlay && !this.$overlay) {
+        this.$overlay = this._makeOverlay(this.id);
+      }
+
+      this.$element.attr({
+        'role': 'dialog',
+        'aria-hidden': true,
+        'data-yeti-box': this.id,
+        'data-resize': this.id
+      });
+
+      if (this.$overlay) {
+        this.$element.detach().appendTo(this.$overlay);
+      } else {
+        this.$element.detach().appendTo(__WEBPACK_IMPORTED_MODULE_0_jquery___default()(this.options.appendTo));
+        this.$element.addClass('without-overlay');
+      }
+      this._events();
+      if (this.options.deepLink && window.location.hash === '#' + this.id) {
+        __WEBPACK_IMPORTED_MODULE_0_jquery___default()(window).one('load.zf.reveal', this.open.bind(this));
+      }
+    }
+
+    /**
+     * Creates an overlay div to display behind the modal.
+     * @private
+     */
+
+  }, {
+    key: '_makeOverlay',
+    value: function _makeOverlay() {
+      var additionalOverlayClasses = '';
+
+      if (this.options.additionalOverlayClasses) {
+        additionalOverlayClasses = ' ' + this.options.additionalOverlayClasses;
+      }
+
+      return __WEBPACK_IMPORTED_MODULE_0_jquery___default()('<div></div>').addClass('reveal-overlay' + additionalOverlayClasses).appendTo(this.options.appendTo);
+    }
+
+    /**
+     * Updates position of modal
+     * TODO:  Figure out if we actually need to cache these values or if it doesn't matter
+     * @private
+     */
+
+  }, {
+    key: '_updatePosition',
+    value: function _updatePosition() {
+      var width = this.$element.outerWidth();
+      var outerWidth = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(window).width();
+      var height = this.$element.outerHeight();
+      var outerHeight = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(window).height();
+      var left, top;
+      if (this.options.hOffset === 'auto') {
+        left = parseInt((outerWidth - width) / 2, 10);
+      } else {
+        left = parseInt(this.options.hOffset, 10);
+      }
+      if (this.options.vOffset === 'auto') {
+        if (height > outerHeight) {
+          top = parseInt(Math.min(100, outerHeight / 10), 10);
+        } else {
+          top = parseInt((outerHeight - height) / 4, 10);
+        }
+      } else {
+        top = parseInt(this.options.vOffset, 10);
+      }
+      this.$element.css({ top: top + 'px' });
+      // only worry about left if we don't have an overlay or we havea  horizontal offset,
+      // otherwise we're perfectly in the middle
+      if (!this.$overlay || this.options.hOffset !== 'auto') {
+        this.$element.css({ left: left + 'px' });
+        this.$element.css({ margin: '0px' });
+      }
+    }
+
+    /**
+     * Adds event handlers for the modal.
+     * @private
+     */
+
+  }, {
+    key: '_events',
+    value: function _events() {
+      var _this3 = this;
+
+      var _this = this;
+
+      this.$element.on({
+        'open.zf.trigger': this.open.bind(this),
+        'close.zf.trigger': function (event, $element) {
+          if (event.target === _this.$element[0] || __WEBPACK_IMPORTED_MODULE_0_jquery___default()(event.target).parents('[data-closable]')[0] === $element) {
+            // only close reveal when it's explicitly called
+            return _this3.close.apply(_this3);
+          }
+        },
+        'toggle.zf.trigger': this.toggle.bind(this),
+        'resizeme.zf.trigger': function () {
+          _this._updatePosition();
+        }
+      });
+
+      if (this.options.closeOnClick && this.options.overlay) {
+        this.$overlay.off('.zf.reveal').on('click.zf.reveal', function (e) {
+          if (e.target === _this.$element[0] || __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.contains(_this.$element[0], e.target) || !__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.contains(document, e.target)) {
+            return;
+          }
+          _this.close();
+        });
+      }
+      if (this.options.deepLink) {
+        __WEBPACK_IMPORTED_MODULE_0_jquery___default()(window).on('popstate.zf.reveal:' + this.id, this._handleState.bind(this));
+      }
+    }
+
+    /**
+     * Handles modal methods on back/forward button clicks or any other event that triggers popstate.
+     * @private
+     */
+
+  }, {
+    key: '_handleState',
+    value: function _handleState(e) {
+      if (window.location.hash === '#' + this.id && !this.isActive) {
+        this.open();
+      } else {
+        this.close();
+      }
+    }
+
+    /**
+     * Opens the modal controlled by `this.$anchor`, and closes all others by default.
+     * @function
+     * @fires Reveal#closeme
+     * @fires Reveal#open
+     */
+
+  }, {
+    key: 'open',
+    value: function open() {
+      var _this4 = this;
+
+      // either update or replace browser history
+      if (this.options.deepLink) {
+        var hash = '#' + this.id;
+
+        if (window.history.pushState) {
+          if (this.options.updateHistory) {
+            window.history.pushState({}, '', hash);
+          } else {
+            window.history.replaceState({}, '', hash);
+          }
+        } else {
+          window.location.hash = hash;
+        }
+      }
+
+      this.isActive = true;
+
+      // Make elements invisible, but remove display: none so we can get size and positioning
+      this.$element.css({ 'visibility': 'hidden' }).show().scrollTop(0);
+      if (this.options.overlay) {
+        this.$overlay.css({ 'visibility': 'hidden' }).show();
+      }
+
+      this._updatePosition();
+
+      this.$element.hide().css({ 'visibility': '' });
+
+      if (this.$overlay) {
+        this.$overlay.css({ 'visibility': '' }).hide();
+        if (this.$element.hasClass('fast')) {
+          this.$overlay.addClass('fast');
+        } else if (this.$element.hasClass('slow')) {
+          this.$overlay.addClass('slow');
+        }
+      }
+
+      if (!this.options.multipleOpened) {
+        /**
+         * Fires immediately before the modal opens.
+         * Closes any other modals that are currently open
+         * @event Reveal#closeme
+         */
+        this.$element.trigger('closeme.zf.reveal', this.id);
+      }
+
+      var _this = this;
+
+      function addRevealOpenClasses() {
+        if (_this.isMobile) {
+          if (!_this.originalScrollPos) {
+            _this.originalScrollPos = window.pageYOffset;
+          }
+          __WEBPACK_IMPORTED_MODULE_0_jquery___default()('html, body').addClass('is-reveal-open');
+        } else {
+          __WEBPACK_IMPORTED_MODULE_0_jquery___default()('body').addClass('is-reveal-open');
+        }
+      }
+      // Motion UI method of reveal
+      if (this.options.animationIn) {
+        (function () {
+          var afterAnimation = function () {
+            _this.$element.attr({
+              'aria-hidden': false,
+              'tabindex': -1
+            }).focus();
+            addRevealOpenClasses();
+            __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__["a" /* Keyboard */].trapFocus(_this.$element);
+          };
+
+          if (_this4.options.overlay) {
+            __WEBPACK_IMPORTED_MODULE_3__foundation_util_motion__["a" /* Motion */].animateIn(_this4.$overlay, 'fade-in');
+          }
+          __WEBPACK_IMPORTED_MODULE_3__foundation_util_motion__["a" /* Motion */].animateIn(_this4.$element, _this4.options.animationIn, function () {
+            if (_this4.$element) {
+              // protect against object having been removed
+              _this4.focusableElements = __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__["a" /* Keyboard */].findFocusable(_this4.$element);
+              afterAnimation();
+            }
+          });
+        })();
+      }
+      // jQuery method of reveal
+      else {
+          if (this.options.overlay) {
+            this.$overlay.show(0);
+          }
+          this.$element.show(this.options.showDelay);
+        }
+
+      // handle accessibility
+      this.$element.attr({
+        'aria-hidden': false,
+        'tabindex': -1
+      }).focus();
+      __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__["a" /* Keyboard */].trapFocus(this.$element);
+
+      addRevealOpenClasses();
+
+      this._extraHandlers();
+
+      /**
+       * Fires when the modal has successfully opened.
+       * @event Reveal#open
+       */
+      this.$element.trigger('open.zf.reveal');
+    }
+
+    /**
+     * Adds extra event handlers for the body and window if necessary.
+     * @private
+     */
+
+  }, {
+    key: '_extraHandlers',
+    value: function _extraHandlers() {
+      var _this = this;
+      if (!this.$element) {
+        return;
+      } // If we're in the middle of cleanup, don't freak out
+      this.focusableElements = __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__["a" /* Keyboard */].findFocusable(this.$element);
+
+      if (!this.options.overlay && this.options.closeOnClick && !this.options.fullScreen) {
+        __WEBPACK_IMPORTED_MODULE_0_jquery___default()('body').on('click.zf.reveal', function (e) {
+          if (e.target === _this.$element[0] || __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.contains(_this.$element[0], e.target) || !__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.contains(document, e.target)) {
+            return;
+          }
+          _this.close();
+        });
+      }
+
+      if (this.options.closeOnEsc) {
+        __WEBPACK_IMPORTED_MODULE_0_jquery___default()(window).on('keydown.zf.reveal', function (e) {
+          __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__["a" /* Keyboard */].handleKey(e, 'Reveal', {
+            close: function () {
+              if (_this.options.closeOnEsc) {
+                _this.close();
+              }
+            }
+          });
+        });
+      }
+    }
+
+    /**
+     * Closes the modal.
+     * @function
+     * @fires Reveal#closed
+     */
+
+  }, {
+    key: 'close',
+    value: function close() {
+      if (!this.isActive || !this.$element.is(':visible')) {
+        return false;
+      }
