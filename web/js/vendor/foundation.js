@@ -9797,3 +9797,314 @@ var Slider = function (_Plugin) {
 
         //percentage w/h of the handle compared to the slider bar
         handlePct = ~~(percent(handleDim, elemDim) * 100);
+        //if left handle, the math is slightly different than if it's the right handle, and the left/top property needs to be changed for the fill bar
+        if (isLeftHndl) {
+          //left or top percentage value to apply to the fill bar.
+          css[lOrT] = movement + '%';
+          //calculate the new min-height/width for the fill bar.
+          dim = parseFloat(this.$handle2[0].style[lOrT]) - movement + handlePct;
+          //this callback is necessary to prevent errors and allow the proper placement and initialization of a 2-handled slider
+          //plus, it means we don't care if 'dim' isNaN on init, it won't be in the future.
+          if (cb && typeof cb === 'function') {
+            cb();
+          } //this is only needed for the initialization of 2 handled sliders
+        } else {
+          //just caching the value of the left/bottom handle's left/top property
+          var handlePos = parseFloat(this.$handle[0].style[lOrT]);
+          //calculate the new min-height/width for the fill bar. Use isNaN to prevent false positives for numbers <= 0
+          //based on the percentage of movement of the handle being manipulated, less the opposing handle's left/top position, plus the percentage w/h of the handle itself
+          dim = movement - (isNaN(handlePos) ? (this.options.initialStart - this.options.start) / ((this.options.end - this.options.start) / 100) : handlePos) + handlePct;
+        }
+        // assign the min-height/width to our css object
+        css['min-' + hOrW] = dim + '%';
+      }
+
+      this.$element.one('finished.zf.animate', function () {
+        /**
+         * Fires when the handle is done moving.
+         * @event Slider#moved
+         */
+        _this.$element.trigger('moved.zf.slider', [$hndl]);
+      });
+
+      //because we don't know exactly how the handle will be moved, check the amount of time it should take to move.
+      var moveTime = this.$element.data('dragging') ? 1000 / 60 : this.options.moveTime;
+
+      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__foundation_util_motion__["b" /* Move */])(moveTime, $hndl, function () {
+        // adjusting the left/top property of the handle, based on the percentage calculated above
+        // if movement isNaN, that is because the slider is hidden and we cannot determine handle width,
+        // fall back to next best guess.
+        if (isNaN(movement)) {
+          $hndl.css(lOrT, pctOfBar * 100 + '%');
+        } else {
+          $hndl.css(lOrT, movement + '%');
+        }
+
+        if (!_this.options.doubleSided) {
+          //if single-handled, a simple method to expand the fill bar
+          _this.$fill.css(hOrW, pctOfBar * 100 + '%');
+        } else {
+          //otherwise, use the css object we created above
+          _this.$fill.css(css);
+        }
+      });
+
+      /**
+       * Fires when the value has not been change for a given time.
+       * @event Slider#changed
+       */
+      clearTimeout(_this.timeout);
+      _this.timeout = setTimeout(function () {
+        _this.$element.trigger('changed.zf.slider', [$hndl]);
+      }, _this.options.changedDelay);
+    }
+
+    /**
+     * Sets the initial attribute for the slider element.
+     * @function
+     * @private
+     * @param {Number} idx - index of the current handle/input to use.
+     */
+
+  }, {
+    key: '_setInitAttr',
+    value: function _setInitAttr(idx) {
+      var initVal = idx === 0 ? this.options.initialStart : this.options.initialEnd;
+      var id = this.inputs.eq(idx).attr('id') || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["a" /* GetYoDigits */])(6, 'slider');
+      this.inputs.eq(idx).attr({
+        'id': id,
+        'max': this.options.end,
+        'min': this.options.start,
+        'step': this.options.step
+      });
+      this.inputs.eq(idx).val(initVal);
+      this.handles.eq(idx).attr({
+        'role': 'slider',
+        'aria-controls': id,
+        'aria-valuemax': this.options.end,
+        'aria-valuemin': this.options.start,
+        'aria-valuenow': initVal,
+        'aria-orientation': this.options.vertical ? 'vertical' : 'horizontal',
+        'tabindex': 0
+      });
+    }
+
+    /**
+     * Sets the input and `aria-valuenow` values for the slider element.
+     * @function
+     * @private
+     * @param {jQuery} $handle - the currently selected handle.
+     * @param {Number} val - floating point of the new value.
+     */
+
+  }, {
+    key: '_setValues',
+    value: function _setValues($handle, val) {
+      var idx = this.options.doubleSided ? this.handles.index($handle) : 0;
+      this.inputs.eq(idx).val(val);
+      $handle.attr('aria-valuenow', val);
+    }
+
+    /**
+     * Handles events on the slider element.
+     * Calculates the new location of the current handle.
+     * If there are two handles and the bar was clicked, it determines which handle to move.
+     * @function
+     * @private
+     * @param {Object} e - the `event` object passed from the listener.
+     * @param {jQuery} $handle - the current handle to calculate for, if selected.
+     * @param {Number} val - floating point number for the new value of the slider.
+     * TODO clean this up, there's a lot of repeated code between this and the _setHandlePos fn.
+     */
+
+  }, {
+    key: '_handleEvent',
+    value: function _handleEvent(e, $handle, val) {
+      var value, hasVal;
+      if (!val) {
+        //click or drag events
+        e.preventDefault();
+        var _this = this,
+            vertical = this.options.vertical,
+            param = vertical ? 'height' : 'width',
+            direction = vertical ? 'top' : 'left',
+            eventOffset = vertical ? e.pageY : e.pageX,
+            halfOfHandle = this.$handle[0].getBoundingClientRect()[param] / 2,
+            barDim = this.$element[0].getBoundingClientRect()[param],
+            windowScroll = vertical ? __WEBPACK_IMPORTED_MODULE_0_jquery___default()(window).scrollTop() : __WEBPACK_IMPORTED_MODULE_0_jquery___default()(window).scrollLeft();
+
+        var elemOffset = this.$element.offset()[direction];
+
+        // touch events emulated by the touch util give position relative to screen, add window.scroll to event coordinates...
+        // best way to guess this is simulated is if clientY == pageY
+        if (e.clientY === e.pageY) {
+          eventOffset = eventOffset + windowScroll;
+        }
+        var eventFromBar = eventOffset - elemOffset;
+        var barXY;
+        if (eventFromBar < 0) {
+          barXY = 0;
+        } else if (eventFromBar > barDim) {
+          barXY = barDim;
+        } else {
+          barXY = eventFromBar;
+        }
+        var offsetPct = percent(barXY, barDim);
+
+        value = this._value(offsetPct);
+
+        // turn everything around for RTL, yay math!
+        if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["c" /* rtl */])() && !this.options.vertical) {
+          value = this.options.end - value;
+        }
+
+        value = _this._adjustValue(null, value);
+        //boolean flag for the setHandlePos fn, specifically for vertical sliders
+        hasVal = false;
+
+        if (!$handle) {
+          //figure out which handle it is, pass it to the next function.
+          var firstHndlPos = absPosition(this.$handle, direction, barXY, param),
+              secndHndlPos = absPosition(this.$handle2, direction, barXY, param);
+          $handle = firstHndlPos <= secndHndlPos ? this.$handle : this.$handle2;
+        }
+      } else {
+        //change event on input
+        value = this._adjustValue(null, val);
+        hasVal = true;
+      }
+
+      this._setHandlePos($handle, value, hasVal);
+    }
+
+    /**
+     * Adjustes value for handle in regard to step value. returns adjusted value
+     * @function
+     * @private
+     * @param {jQuery} $handle - the selected handle.
+     * @param {Number} value - value to adjust. used if $handle is falsy
+     */
+
+  }, {
+    key: '_adjustValue',
+    value: function _adjustValue($handle, value) {
+      var val,
+          step = this.options.step,
+          div = parseFloat(step / 2),
+          left,
+          prev_val,
+          next_val;
+      if (!!$handle) {
+        val = parseFloat($handle.attr('aria-valuenow'));
+      } else {
+        val = value;
+      }
+      left = val % step;
+      prev_val = val - left;
+      next_val = prev_val + step;
+      if (left === 0) {
+        return val;
+      }
+      val = val >= prev_val + div ? next_val : prev_val;
+      return val;
+    }
+
+    /**
+     * Adds event listeners to the slider elements.
+     * @function
+     * @private
+     */
+
+  }, {
+    key: '_events',
+    value: function _events() {
+      this._eventsForHandle(this.$handle);
+      if (this.handles[1]) {
+        this._eventsForHandle(this.$handle2);
+      }
+    }
+
+    /**
+     * Adds event listeners a particular handle
+     * @function
+     * @private
+     * @param {jQuery} $handle - the current handle to apply listeners to.
+     */
+
+  }, {
+    key: '_eventsForHandle',
+    value: function _eventsForHandle($handle) {
+      var _this = this,
+          curHandle,
+          timer;
+
+      this.inputs.off('change.zf.slider').on('change.zf.slider', function (e) {
+        var idx = _this.inputs.index(__WEBPACK_IMPORTED_MODULE_0_jquery___default()(this));
+        _this._handleEvent(e, _this.handles.eq(idx), __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this).val());
+      });
+
+      if (this.options.clickSelect) {
+        this.$element.off('click.zf.slider').on('click.zf.slider', function (e) {
+          if (_this.$element.data('dragging')) {
+            return false;
+          }
+
+          if (!__WEBPACK_IMPORTED_MODULE_0_jquery___default()(e.target).is('[data-slider-handle]')) {
+            if (_this.options.doubleSided) {
+              _this._handleEvent(e);
+            } else {
+              _this._handleEvent(e, _this.$handle);
+            }
+          }
+        });
+      }
+
+      if (this.options.draggable) {
+        this.handles.addTouch();
+
+        var $body = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('body');
+        $handle.off('mousedown.zf.slider').on('mousedown.zf.slider', function (e) {
+          $handle.addClass('is-dragging');
+          _this.$fill.addClass('is-dragging'); //
+          _this.$element.data('dragging', true);
+
+          curHandle = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(e.currentTarget);
+
+          $body.on('mousemove.zf.slider', function (e) {
+            e.preventDefault();
+            _this._handleEvent(e, curHandle);
+          }).on('mouseup.zf.slider', function (e) {
+            _this._handleEvent(e, curHandle);
+
+            $handle.removeClass('is-dragging');
+            _this.$fill.removeClass('is-dragging');
+            _this.$element.data('dragging', false);
+
+            $body.off('mousemove.zf.slider mouseup.zf.slider');
+          });
+        })
+        // prevent events triggered by touch
+        .on('selectstart.zf.slider touchmove.zf.slider', function (e) {
+          e.preventDefault();
+        });
+      }
+
+      $handle.off('keydown.zf.slider').on('keydown.zf.slider', function (e) {
+        var _$handle = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this),
+            idx = _this.options.doubleSided ? _this.handles.index(_$handle) : 0,
+            oldValue = parseFloat(_this.inputs.eq(idx).val()),
+            newValue;
+
+        // handle keyboard event with keyboard util
+        __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__["a" /* Keyboard */].handleKey(e, 'Slider', {
+          decrease: function () {
+            newValue = oldValue - _this.options.step;
+          },
+          increase: function () {
+            newValue = oldValue + _this.options.step;
+          },
+          decrease_fast: function () {
+            newValue = oldValue - _this.options.step * 10;
+          },
+          increase_fast: function () {
+            newValue = oldValue + _this.options.step * 10;
