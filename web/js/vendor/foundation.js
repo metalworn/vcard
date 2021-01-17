@@ -10382,3 +10382,293 @@ var Sticky = function (_Plugin) {
         this.$element.wrap(this.options.container);
         this.$container = this.$element.parent();
       }
+      this.$container.addClass(this.options.containerClass);
+
+      this.$element.addClass(this.options.stickyClass).attr({ 'data-resize': id, 'data-mutate': id });
+      if (this.options.anchor !== '') {
+        __WEBPACK_IMPORTED_MODULE_0_jquery___default()('#' + _this.options.anchor).attr({ 'data-mutate': id });
+      }
+
+      this.scrollCount = this.options.checkEvery;
+      this.isStuck = false;
+      __WEBPACK_IMPORTED_MODULE_0_jquery___default()(window).one('load.zf.sticky', function () {
+        //We calculate the container height to have correct values for anchor points offset calculation.
+        _this.containerHeight = _this.$element.css("display") == "none" ? 0 : _this.$element[0].getBoundingClientRect().height;
+        _this.$container.css('height', _this.containerHeight);
+        _this.elemHeight = _this.containerHeight;
+        if (_this.options.anchor !== '') {
+          _this.$anchor = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('#' + _this.options.anchor);
+        } else {
+          _this._parsePoints();
+        }
+
+        _this._setSizes(function () {
+          var scroll = window.pageYOffset;
+          _this._calc(false, scroll);
+          //Unstick the element will ensure that proper classes are set.
+          if (!_this.isStuck) {
+            _this._removeSticky(scroll >= _this.topPoint ? false : true);
+          }
+        });
+        _this._events(id.split('-').reverse().join('-'));
+      });
+    }
+
+    /**
+     * If using multiple elements as anchors, calculates the top and bottom pixel values the sticky thing should stick and unstick on.
+     * @function
+     * @private
+     */
+
+  }, {
+    key: '_parsePoints',
+    value: function _parsePoints() {
+      var top = this.options.topAnchor == "" ? 1 : this.options.topAnchor,
+          btm = this.options.btmAnchor == "" ? document.documentElement.scrollHeight : this.options.btmAnchor,
+          pts = [top, btm],
+          breaks = {};
+      for (var i = 0, len = pts.length; i < len && pts[i]; i++) {
+        var pt;
+        if (typeof pts[i] === 'number') {
+          pt = pts[i];
+        } else {
+          var place = pts[i].split(':'),
+              anchor = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('#' + place[0]);
+
+          pt = anchor.offset().top;
+          if (place[1] && place[1].toLowerCase() === 'bottom') {
+            pt += anchor[0].getBoundingClientRect().height;
+          }
+        }
+        breaks[i] = pt;
+      }
+
+      this.points = breaks;
+      return;
+    }
+
+    /**
+     * Adds event handlers for the scrolling element.
+     * @private
+     * @param {String} id - pseudo-random id for unique scroll event listener.
+     */
+
+  }, {
+    key: '_events',
+    value: function _events(id) {
+      var _this = this,
+          scrollListener = this.scrollListener = 'scroll.zf.' + id;
+      if (this.isOn) {
+        return;
+      }
+      if (this.canStick) {
+        this.isOn = true;
+        __WEBPACK_IMPORTED_MODULE_0_jquery___default()(window).off(scrollListener).on(scrollListener, function (e) {
+          if (_this.scrollCount === 0) {
+            _this.scrollCount = _this.options.checkEvery;
+            _this._setSizes(function () {
+              _this._calc(false, window.pageYOffset);
+            });
+          } else {
+            _this.scrollCount--;
+            _this._calc(false, window.pageYOffset);
+          }
+        });
+      }
+
+      this.$element.off('resizeme.zf.trigger').on('resizeme.zf.trigger', function (e, el) {
+        _this._eventsHandler(id);
+      });
+
+      this.$element.on('mutateme.zf.trigger', function (e, el) {
+        _this._eventsHandler(id);
+      });
+
+      if (this.$anchor) {
+        this.$anchor.on('mutateme.zf.trigger', function (e, el) {
+          _this._eventsHandler(id);
+        });
+      }
+    }
+
+    /**
+     * Handler for events.
+     * @private
+     * @param {String} id - pseudo-random id for unique scroll event listener.
+     */
+
+  }, {
+    key: '_eventsHandler',
+    value: function _eventsHandler(id) {
+      var _this = this,
+          scrollListener = this.scrollListener = 'scroll.zf.' + id;
+
+      _this._setSizes(function () {
+        _this._calc(false);
+        if (_this.canStick) {
+          if (!_this.isOn) {
+            _this._events(id);
+          }
+        } else if (_this.isOn) {
+          _this._pauseListeners(scrollListener);
+        }
+      });
+    }
+
+    /**
+     * Removes event handlers for scroll and change events on anchor.
+     * @fires Sticky#pause
+     * @param {String} scrollListener - unique, namespaced scroll listener attached to `window`
+     */
+
+  }, {
+    key: '_pauseListeners',
+    value: function _pauseListeners(scrollListener) {
+      this.isOn = false;
+      __WEBPACK_IMPORTED_MODULE_0_jquery___default()(window).off(scrollListener);
+
+      /**
+       * Fires when the plugin is paused due to resize event shrinking the view.
+       * @event Sticky#pause
+       * @private
+       */
+      this.$element.trigger('pause.zf.sticky');
+    }
+
+    /**
+     * Called on every `scroll` event and on `_init`
+     * fires functions based on booleans and cached values
+     * @param {Boolean} checkSizes - true if plugin should recalculate sizes and breakpoints.
+     * @param {Number} scroll - current scroll position passed from scroll event cb function. If not passed, defaults to `window.pageYOffset`.
+     */
+
+  }, {
+    key: '_calc',
+    value: function _calc(checkSizes, scroll) {
+      if (checkSizes) {
+        this._setSizes();
+      }
+
+      if (!this.canStick) {
+        if (this.isStuck) {
+          this._removeSticky(true);
+        }
+        return false;
+      }
+
+      if (!scroll) {
+        scroll = window.pageYOffset;
+      }
+
+      if (scroll >= this.topPoint) {
+        if (scroll <= this.bottomPoint) {
+          if (!this.isStuck) {
+            this._setSticky();
+          }
+        } else {
+          if (this.isStuck) {
+            this._removeSticky(false);
+          }
+        }
+      } else {
+        if (this.isStuck) {
+          this._removeSticky(true);
+        }
+      }
+    }
+
+    /**
+     * Causes the $element to become stuck.
+     * Adds `position: fixed;`, and helper classes.
+     * @fires Sticky#stuckto
+     * @function
+     * @private
+     */
+
+  }, {
+    key: '_setSticky',
+    value: function _setSticky() {
+      var _this = this,
+          stickTo = this.options.stickTo,
+          mrgn = stickTo === 'top' ? 'marginTop' : 'marginBottom',
+          notStuckTo = stickTo === 'top' ? 'bottom' : 'top',
+          css = {};
+
+      css[mrgn] = this.options[mrgn] + 'em';
+      css[stickTo] = 0;
+      css[notStuckTo] = 'auto';
+      this.isStuck = true;
+      this.$element.removeClass('is-anchored is-at-' + notStuckTo).addClass('is-stuck is-at-' + stickTo).css(css)
+      /**
+       * Fires when the $element has become `position: fixed;`
+       * Namespaced to `top` or `bottom`, e.g. `sticky.zf.stuckto:top`
+       * @event Sticky#stuckto
+       */
+      .trigger('sticky.zf.stuckto:' + stickTo);
+      this.$element.on("transitionend webkitTransitionEnd oTransitionEnd otransitionend MSTransitionEnd", function () {
+        _this._setSizes();
+      });
+    }
+
+    /**
+     * Causes the $element to become unstuck.
+     * Removes `position: fixed;`, and helper classes.
+     * Adds other helper classes.
+     * @param {Boolean} isTop - tells the function if the $element should anchor to the top or bottom of its $anchor element.
+     * @fires Sticky#unstuckfrom
+     * @private
+     */
+
+  }, {
+    key: '_removeSticky',
+    value: function _removeSticky(isTop) {
+      var stickTo = this.options.stickTo,
+          stickToTop = stickTo === 'top',
+          css = {},
+          anchorPt = (this.points ? this.points[1] - this.points[0] : this.anchorHeight) - this.elemHeight,
+          mrgn = stickToTop ? 'marginTop' : 'marginBottom',
+          notStuckTo = stickToTop ? 'bottom' : 'top',
+          topOrBottom = isTop ? 'top' : 'bottom';
+
+      css[mrgn] = 0;
+
+      css['bottom'] = 'auto';
+      if (isTop) {
+        css['top'] = 0;
+      } else {
+        css['top'] = anchorPt;
+      }
+
+      this.isStuck = false;
+      this.$element.removeClass('is-stuck is-at-' + stickTo).addClass('is-anchored is-at-' + topOrBottom).css(css)
+      /**
+       * Fires when the $element has become anchored.
+       * Namespaced to `top` or `bottom`, e.g. `sticky.zf.unstuckfrom:bottom`
+       * @event Sticky#unstuckfrom
+       */
+      .trigger('sticky.zf.unstuckfrom:' + topOrBottom);
+    }
+
+    /**
+     * Sets the $element and $container sizes for plugin.
+     * Calls `_setBreakPoints`.
+     * @param {Function} cb - optional callback function to fire on completion of `_setBreakPoints`.
+     * @private
+     */
+
+  }, {
+    key: '_setSizes',
+    value: function _setSizes(cb) {
+      this.canStick = __WEBPACK_IMPORTED_MODULE_2__foundation_util_mediaQuery__["a" /* MediaQuery */].is(this.options.stickyOn);
+      if (!this.canStick) {
+        if (cb && typeof cb === 'function') {
+          cb();
+        }
+      }
+      var _this = this,
+          newElemWidth = this.$container[0].getBoundingClientRect().width,
+          comp = window.getComputedStyle(this.$container[0]),
+          pdngl = parseInt(comp['padding-left'], 10),
+          pdngr = parseInt(comp['padding-right'], 10);
+
+      if (this.$anchor && this.$anchor.length) {
