@@ -9525,3 +9525,275 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 /**
  * Slider module.
+ * @module foundation.slider
+ * @requires foundation.util.motion
+ * @requires foundation.util.triggers
+ * @requires foundation.util.keyboard
+ * @requires foundation.util.touch
+ */
+
+var Slider = function (_Plugin) {
+  _inherits(Slider, _Plugin);
+
+  function Slider() {
+    _classCallCheck(this, Slider);
+
+    return _possibleConstructorReturn(this, (Slider.__proto__ || Object.getPrototypeOf(Slider)).apply(this, arguments));
+  }
+
+  _createClass(Slider, [{
+    key: '_setup',
+
+    /**
+     * Creates a new instance of a slider control.
+     * @class
+     * @name Slider
+     * @param {jQuery} element - jQuery object to make into a slider control.
+     * @param {Object} options - Overrides to the default plugin settings.
+     */
+    value: function _setup(element, options) {
+      this.$element = element;
+      this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, Slider.defaults, this.$element.data(), options);
+      this.className = 'Slider'; // ie9 back compat
+
+      // Touch and Triggers inits are idempotent, we just need to make sure it's initialied.
+      __WEBPACK_IMPORTED_MODULE_5__foundation_util_touch__["a" /* Touch */].init(__WEBPACK_IMPORTED_MODULE_0_jquery___default.a);
+      __WEBPACK_IMPORTED_MODULE_6__foundation_util_triggers__["a" /* Triggers */].init(__WEBPACK_IMPORTED_MODULE_0_jquery___default.a);
+
+      this._init();
+
+      __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__["a" /* Keyboard */].register('Slider', {
+        'ltr': {
+          'ARROW_RIGHT': 'increase',
+          'ARROW_UP': 'increase',
+          'ARROW_DOWN': 'decrease',
+          'ARROW_LEFT': 'decrease',
+          'SHIFT_ARROW_RIGHT': 'increase_fast',
+          'SHIFT_ARROW_UP': 'increase_fast',
+          'SHIFT_ARROW_DOWN': 'decrease_fast',
+          'SHIFT_ARROW_LEFT': 'decrease_fast',
+          'HOME': 'min',
+          'END': 'max'
+        },
+        'rtl': {
+          'ARROW_LEFT': 'increase',
+          'ARROW_RIGHT': 'decrease',
+          'SHIFT_ARROW_LEFT': 'increase_fast',
+          'SHIFT_ARROW_RIGHT': 'decrease_fast'
+        }
+      });
+    }
+
+    /**
+     * Initilizes the plugin by reading/setting attributes, creating collections and setting the initial position of the handle(s).
+     * @function
+     * @private
+     */
+
+  }, {
+    key: '_init',
+    value: function _init() {
+      this.inputs = this.$element.find('input');
+      this.handles = this.$element.find('[data-slider-handle]');
+
+      this.$handle = this.handles.eq(0);
+      this.$input = this.inputs.length ? this.inputs.eq(0) : __WEBPACK_IMPORTED_MODULE_0_jquery___default()('#' + this.$handle.attr('aria-controls'));
+      this.$fill = this.$element.find('[data-slider-fill]').css(this.options.vertical ? 'height' : 'width', 0);
+
+      var isDbl = false,
+          _this = this;
+      if (this.options.disabled || this.$element.hasClass(this.options.disabledClass)) {
+        this.options.disabled = true;
+        this.$element.addClass(this.options.disabledClass);
+      }
+      if (!this.inputs.length) {
+        this.inputs = __WEBPACK_IMPORTED_MODULE_0_jquery___default()().add(this.$input);
+        this.options.binding = true;
+      }
+
+      this._setInitAttr(0);
+
+      if (this.handles[1]) {
+        this.options.doubleSided = true;
+        this.$handle2 = this.handles.eq(1);
+        this.$input2 = this.inputs.length > 1 ? this.inputs.eq(1) : __WEBPACK_IMPORTED_MODULE_0_jquery___default()('#' + this.$handle2.attr('aria-controls'));
+
+        if (!this.inputs[1]) {
+          this.inputs = this.inputs.add(this.$input2);
+        }
+        isDbl = true;
+
+        // this.$handle.triggerHandler('click.zf.slider');
+        this._setInitAttr(1);
+      }
+
+      // Set handle positions
+      this.setHandles();
+
+      this._events();
+    }
+  }, {
+    key: 'setHandles',
+    value: function setHandles() {
+      var _this3 = this;
+
+      if (this.handles[1]) {
+        this._setHandlePos(this.$handle, this.inputs.eq(0).val(), true, function () {
+          _this3._setHandlePos(_this3.$handle2, _this3.inputs.eq(1).val(), true);
+        });
+      } else {
+        this._setHandlePos(this.$handle, this.inputs.eq(0).val(), true);
+      }
+    }
+  }, {
+    key: '_reflow',
+    value: function _reflow() {
+      this.setHandles();
+    }
+    /**
+    * @function
+    * @private
+    * @param {Number} value - floating point (the value) to be transformed using to a relative position on the slider (the inverse of _value)
+    */
+
+  }, {
+    key: '_pctOfBar',
+    value: function _pctOfBar(value) {
+      var pctOfBar = percent(value - this.options.start, this.options.end - this.options.start);
+
+      switch (this.options.positionValueFunction) {
+        case "pow":
+          pctOfBar = this._logTransform(pctOfBar);
+          break;
+        case "log":
+          pctOfBar = this._powTransform(pctOfBar);
+          break;
+      }
+
+      return pctOfBar.toFixed(2);
+    }
+
+    /**
+    * @function
+    * @private
+    * @param {Number} pctOfBar - floating point, the relative position of the slider (typically between 0-1) to be transformed to a value
+    */
+
+  }, {
+    key: '_value',
+    value: function _value(pctOfBar) {
+      switch (this.options.positionValueFunction) {
+        case "pow":
+          pctOfBar = this._powTransform(pctOfBar);
+          break;
+        case "log":
+          pctOfBar = this._logTransform(pctOfBar);
+          break;
+      }
+      var value = (this.options.end - this.options.start) * pctOfBar + this.options.start;
+
+      return value;
+    }
+
+    /**
+    * @function
+    * @private
+    * @param {Number} value - floating point (typically between 0-1) to be transformed using the log function
+    */
+
+  }, {
+    key: '_logTransform',
+    value: function _logTransform(value) {
+      return baseLog(this.options.nonLinearBase, value * (this.options.nonLinearBase - 1) + 1);
+    }
+
+    /**
+    * @function
+    * @private
+    * @param {Number} value - floating point (typically between 0-1) to be transformed using the power function
+    */
+
+  }, {
+    key: '_powTransform',
+    value: function _powTransform(value) {
+      return (Math.pow(this.options.nonLinearBase, value) - 1) / (this.options.nonLinearBase - 1);
+    }
+
+    /**
+     * Sets the position of the selected handle and fill bar.
+     * @function
+     * @private
+     * @param {jQuery} $hndl - the selected handle to move.
+     * @param {Number} location - floating point between the start and end values of the slider bar.
+     * @param {Function} cb - callback function to fire on completion.
+     * @fires Slider#moved
+     * @fires Slider#changed
+     */
+
+  }, {
+    key: '_setHandlePos',
+    value: function _setHandlePos($hndl, location, noInvert, cb) {
+      // don't move if the slider has been disabled since its initialization
+      if (this.$element.hasClass(this.options.disabledClass)) {
+        return;
+      }
+      //might need to alter that slightly for bars that will have odd number selections.
+      location = parseFloat(location); //on input change events, convert string to number...grumble.
+
+      // prevent slider from running out of bounds, if value exceeds the limits set through options, override the value to min/max
+      if (location < this.options.start) {
+        location = this.options.start;
+      } else if (location > this.options.end) {
+        location = this.options.end;
+      }
+
+      var isDbl = this.options.doubleSided;
+
+      //this is for single-handled vertical sliders, it adjusts the value to account for the slider being "upside-down"
+      //for click and drag events, it's weird due to the scale(-1, 1) css property
+      if (this.options.vertical && !noInvert) {
+        location = this.options.end - location;
+      }
+
+      if (isDbl) {
+        //this block is to prevent 2 handles from crossing eachother. Could/should be improved.
+        if (this.handles.index($hndl) === 0) {
+          var h2Val = parseFloat(this.$handle2.attr('aria-valuenow'));
+          location = location >= h2Val ? h2Val - this.options.step : location;
+        } else {
+          var h1Val = parseFloat(this.$handle.attr('aria-valuenow'));
+          location = location <= h1Val ? h1Val + this.options.step : location;
+        }
+      }
+
+      var _this = this,
+          vert = this.options.vertical,
+          hOrW = vert ? 'height' : 'width',
+          lOrT = vert ? 'top' : 'left',
+          handleDim = $hndl[0].getBoundingClientRect()[hOrW],
+          elemDim = this.$element[0].getBoundingClientRect()[hOrW],
+
+      //percentage of bar min/max value based on click or drag point
+      pctOfBar = this._pctOfBar(location),
+
+      //number of actual pixels to shift the handle, based on the percentage obtained above
+      pxToMove = (elemDim - handleDim) * pctOfBar,
+
+      //percentage of bar to shift the handle
+      movement = (percent(pxToMove, elemDim) * 100).toFixed(this.options.decimal);
+      //fixing the decimal value for the location number, is passed to other methods as a fixed floating-point value
+      location = parseFloat(location.toFixed(this.options.decimal));
+      // declare empty object for css adjustments, only used with 2 handled-sliders
+      var css = {};
+
+      this._setValues($hndl, location);
+
+      // TODO update to calculate based on values set to respective inputs??
+      if (isDbl) {
+        var isLeftHndl = this.handles.index($hndl) === 0,
+
+        //empty variable, will be used for min-height/width for fill bar
+        dim,
+
+        //percentage w/h of the handle compared to the slider bar
+        handlePct = ~~(percent(handleDim, elemDim) * 100);
