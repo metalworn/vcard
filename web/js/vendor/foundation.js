@@ -10108,3 +10108,277 @@ var Slider = function (_Plugin) {
           },
           increase_fast: function () {
             newValue = oldValue + _this.options.step * 10;
+          },
+          min: function () {
+            newValue = _this.options.start;
+          },
+          max: function () {
+            newValue = _this.options.end;
+          },
+          handled: function () {
+            // only set handle pos when event was handled specially
+            e.preventDefault();
+            _this._setHandlePos(_$handle, newValue, true);
+          }
+        });
+        /*if (newValue) { // if pressed key has special function, update value
+          e.preventDefault();
+          _this._setHandlePos(_$handle, newValue);
+        }*/
+      });
+    }
+
+    /**
+     * Destroys the slider plugin.
+     */
+
+  }, {
+    key: '_destroy',
+    value: function _destroy() {
+      this.handles.off('.zf.slider');
+      this.inputs.off('.zf.slider');
+      this.$element.off('.zf.slider');
+
+      clearTimeout(this.timeout);
+    }
+  }]);
+
+  return Slider;
+}(__WEBPACK_IMPORTED_MODULE_4__foundation_plugin__["a" /* Plugin */]);
+
+Slider.defaults = {
+  /**
+   * Minimum value for the slider scale.
+   * @option
+   * @type {number}
+   * @default 0
+   */
+  start: 0,
+  /**
+   * Maximum value for the slider scale.
+   * @option
+   * @type {number}
+   * @default 100
+   */
+  end: 100,
+  /**
+   * Minimum value change per change event.
+   * @option
+   * @type {number}
+   * @default 1
+   */
+  step: 1,
+  /**
+   * Value at which the handle/input *(left handle/first input)* should be set to on initialization.
+   * @option
+   * @type {number}
+   * @default 0
+   */
+  initialStart: 0,
+  /**
+   * Value at which the right handle/second input should be set to on initialization.
+   * @option
+   * @type {number}
+   * @default 100
+   */
+  initialEnd: 100,
+  /**
+   * Allows the input to be located outside the container and visible. Set to by the JS
+   * @option
+   * @type {boolean}
+   * @default false
+   */
+  binding: false,
+  /**
+   * Allows the user to click/tap on the slider bar to select a value.
+   * @option
+   * @type {boolean}
+   * @default true
+   */
+  clickSelect: true,
+  /**
+   * Set to true and use the `vertical` class to change alignment to vertical.
+   * @option
+   * @type {boolean}
+   * @default false
+   */
+  vertical: false,
+  /**
+   * Allows the user to drag the slider handle(s) to select a value.
+   * @option
+   * @type {boolean}
+   * @default true
+   */
+  draggable: true,
+  /**
+   * Disables the slider and prevents event listeners from being applied. Double checked by JS with `disabledClass`.
+   * @option
+   * @type {boolean}
+   * @default false
+   */
+  disabled: false,
+  /**
+   * Allows the use of two handles. Double checked by the JS. Changes some logic handling.
+   * @option
+   * @type {boolean}
+   * @default false
+   */
+  doubleSided: false,
+  /**
+   * Potential future feature.
+   */
+  // steps: 100,
+  /**
+   * Number of decimal places the plugin should go to for floating point precision.
+   * @option
+   * @type {number}
+   * @default 2
+   */
+  decimal: 2,
+  /**
+   * Time delay for dragged elements.
+   */
+  // dragDelay: 0,
+  /**
+   * Time, in ms, to animate the movement of a slider handle if user clicks/taps on the bar. Needs to be manually set if updating the transition time in the Sass settings.
+   * @option
+   * @type {number}
+   * @default 200
+   */
+  moveTime: 200, //update this if changing the transition time in the sass
+  /**
+   * Class applied to disabled sliders.
+   * @option
+   * @type {string}
+   * @default 'disabled'
+   */
+  disabledClass: 'disabled',
+  /**
+   * Will invert the default layout for a vertical<span data-tooltip title="who would do this???"> </span>slider.
+   * @option
+   * @type {boolean}
+   * @default false
+   */
+  invertVertical: false,
+  /**
+   * Milliseconds before the `changed.zf-slider` event is triggered after value change.
+   * @option
+   * @type {number}
+   * @default 500
+   */
+  changedDelay: 500,
+  /**
+  * Basevalue for non-linear sliders
+  * @option
+  * @type {number}
+  * @default 5
+  */
+  nonLinearBase: 5,
+  /**
+  * Basevalue for non-linear sliders, possible values are: `'linear'`, `'pow'` & `'log'`. Pow and Log use the nonLinearBase setting.
+  * @option
+  * @type {string}
+  * @default 'linear'
+  */
+  positionValueFunction: 'linear'
+};
+
+function percent(frac, num) {
+  return frac / num;
+}
+function absPosition($handle, dir, clickPos, param) {
+  return Math.abs($handle.position()[dir] + $handle[param]() / 2 - clickPos);
+}
+function baseLog(base, value) {
+  return Math.log(value) / Math.log(base);
+}
+
+
+
+/***/ }),
+/* 31 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Sticky; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_core__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_mediaQuery__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__foundation_plugin__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__foundation_util_triggers__ = __webpack_require__(5);
+
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+
+
+
+
+
+
+/**
+ * Sticky module.
+ * @module foundation.sticky
+ * @requires foundation.util.triggers
+ * @requires foundation.util.mediaQuery
+ */
+
+var Sticky = function (_Plugin) {
+  _inherits(Sticky, _Plugin);
+
+  function Sticky() {
+    _classCallCheck(this, Sticky);
+
+    return _possibleConstructorReturn(this, (Sticky.__proto__ || Object.getPrototypeOf(Sticky)).apply(this, arguments));
+  }
+
+  _createClass(Sticky, [{
+    key: '_setup',
+
+    /**
+     * Creates a new instance of a sticky thing.
+     * @class
+     * @name Sticky
+     * @param {jQuery} element - jQuery object to make sticky.
+     * @param {Object} options - options object passed when creating the element programmatically.
+     */
+    value: function _setup(element, options) {
+      this.$element = element;
+      this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, Sticky.defaults, this.$element.data(), options);
+      this.className = 'Sticky'; // ie9 back compat
+
+      // Triggers init is idempotent, just need to make sure it is initialized
+      __WEBPACK_IMPORTED_MODULE_4__foundation_util_triggers__["a" /* Triggers */].init(__WEBPACK_IMPORTED_MODULE_0_jquery___default.a);
+
+      this._init();
+    }
+
+    /**
+     * Initializes the sticky element by adding classes, getting/setting dimensions, breakpoints and attributes
+     * @function
+     * @private
+     */
+
+  }, {
+    key: '_init',
+    value: function _init() {
+      __WEBPACK_IMPORTED_MODULE_2__foundation_util_mediaQuery__["a" /* MediaQuery */]._init();
+
+      var $parent = this.$element.parent('[data-sticky-container]'),
+          id = this.$element[0].id || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__foundation_util_core__["a" /* GetYoDigits */])(6, 'sticky'),
+          _this = this;
+
+      if ($parent.length) {
+        this.$container = $parent;
+      } else {
+        this.wasWrapped = true;
+        this.$element.wrap(this.options.container);
+        this.$container = this.$element.parent();
+      }
