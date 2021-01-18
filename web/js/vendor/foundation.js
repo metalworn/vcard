@@ -11257,3 +11257,297 @@ var Tooltip = function (_Positionable) {
       this._setPosition();
       this.template.removeClass('top bottom left right').addClass(this.position);
       this.template.removeClass('align-top align-bottom align-left align-right align-center').addClass('align-' + this.alignment);
+
+      /**
+       * Fires to close all other open tooltips on the page
+       * @event Closeme#tooltip
+       */
+      this.$element.trigger('closeme.zf.tooltip', this.template.attr('id'));
+
+      this.template.attr({
+        'data-is-active': true,
+        'aria-hidden': false
+      });
+      _this.isActive = true;
+      // console.log(this.template);
+      this.template.stop().hide().css('visibility', '').fadeIn(this.options.fadeInDuration, function () {
+        //maybe do stuff?
+      });
+      /**
+       * Fires when the tooltip is shown
+       * @event Tooltip#show
+       */
+      this.$element.trigger('show.zf.tooltip');
+    }
+
+    /**
+     * Hides the current tooltip, and resets the positioning class if it was changed due to collision
+     * @fires Tooltip#hide
+     * @function
+     */
+
+  }, {
+    key: 'hide',
+    value: function hide() {
+      // console.log('hiding', this.$element.data('yeti-box'));
+      var _this = this;
+      this.template.stop().attr({
+        'aria-hidden': true,
+        'data-is-active': false
+      }).fadeOut(this.options.fadeOutDuration, function () {
+        _this.isActive = false;
+        _this.isClick = false;
+      });
+      /**
+       * fires when the tooltip is hidden
+       * @event Tooltip#hide
+       */
+      this.$element.trigger('hide.zf.tooltip');
+    }
+
+    /**
+     * adds event listeners for the tooltip and its anchor
+     * TODO combine some of the listeners like focus and mouseenter, etc.
+     * @private
+     */
+
+  }, {
+    key: '_events',
+    value: function _events() {
+      var _this = this;
+      var $template = this.template;
+      var isFocus = false;
+
+      if (!this.options.disableHover) {
+
+        this.$element.on('mouseenter.zf.tooltip', function (e) {
+          if (!_this.isActive) {
+            _this.timeout = setTimeout(function () {
+              _this.show();
+            }, _this.options.hoverDelay);
+          }
+        }).on('mouseleave.zf.tooltip', function (e) {
+          clearTimeout(_this.timeout);
+          if (!isFocus || _this.isClick && !_this.options.clickOpen) {
+            _this.hide();
+          }
+        });
+      }
+
+      if (this.options.clickOpen) {
+        this.$element.on('mousedown.zf.tooltip', function (e) {
+          e.stopImmediatePropagation();
+          if (_this.isClick) {
+            //_this.hide();
+            // _this.isClick = false;
+          } else {
+            _this.isClick = true;
+            if ((_this.options.disableHover || !_this.$element.attr('tabindex')) && !_this.isActive) {
+              _this.show();
+            }
+          }
+        });
+      } else {
+        this.$element.on('mousedown.zf.tooltip', function (e) {
+          e.stopImmediatePropagation();
+          _this.isClick = true;
+        });
+      }
+
+      if (!this.options.disableForTouch) {
+        this.$element.on('tap.zf.tooltip touchend.zf.tooltip', function (e) {
+          _this.isActive ? _this.hide() : _this.show();
+        });
+      }
+
+      this.$element.on({
+        // 'toggle.zf.trigger': this.toggle.bind(this),
+        // 'close.zf.trigger': this.hide.bind(this)
+        'close.zf.trigger': this.hide.bind(this)
+      });
+
+      this.$element.on('focus.zf.tooltip', function (e) {
+        isFocus = true;
+        if (_this.isClick) {
+          // If we're not showing open on clicks, we need to pretend a click-launched focus isn't
+          // a real focus, otherwise on hover and come back we get bad behavior
+          if (!_this.options.clickOpen) {
+            isFocus = false;
+          }
+          return false;
+        } else {
+          _this.show();
+        }
+      }).on('focusout.zf.tooltip', function (e) {
+        isFocus = false;
+        _this.isClick = false;
+        _this.hide();
+      }).on('resizeme.zf.trigger', function () {
+        if (_this.isActive) {
+          _this._setPosition();
+        }
+      });
+    }
+
+    /**
+     * adds a toggle method, in addition to the static show() & hide() functions
+     * @function
+     */
+
+  }, {
+    key: 'toggle',
+    value: function toggle() {
+      if (this.isActive) {
+        this.hide();
+      } else {
+        this.show();
+      }
+    }
+
+    /**
+     * Destroys an instance of tooltip, removes template element from the view.
+     * @function
+     */
+
+  }, {
+    key: '_destroy',
+    value: function _destroy() {
+      this.$element.attr('title', this.template.text()).off('.zf.trigger .zf.tooltip').removeClass('has-tip top right left').removeAttr('aria-describedby aria-haspopup data-disable-hover data-resize data-toggle data-tooltip data-yeti-box');
+
+      this.template.remove();
+    }
+  }]);
+
+  return Tooltip;
+}(__WEBPACK_IMPORTED_MODULE_4__foundation_positionable__["a" /* Positionable */]);
+
+Tooltip.defaults = {
+  disableForTouch: false,
+  /**
+   * Time, in ms, before a tooltip should open on hover.
+   * @option
+   * @type {number}
+   * @default 200
+   */
+  hoverDelay: 200,
+  /**
+   * Time, in ms, a tooltip should take to fade into view.
+   * @option
+   * @type {number}
+   * @default 150
+   */
+  fadeInDuration: 150,
+  /**
+   * Time, in ms, a tooltip should take to fade out of view.
+   * @option
+   * @type {number}
+   * @default 150
+   */
+  fadeOutDuration: 150,
+  /**
+   * Disables hover events from opening the tooltip if set to true
+   * @option
+   * @type {boolean}
+   * @default false
+   */
+  disableHover: false,
+  /**
+   * Optional addtional classes to apply to the tooltip template on init.
+   * @option
+   * @type {string}
+   * @default ''
+   */
+  templateClasses: '',
+  /**
+   * Non-optional class added to tooltip templates. Foundation default is 'tooltip'.
+   * @option
+   * @type {string}
+   * @default 'tooltip'
+   */
+  tooltipClass: 'tooltip',
+  /**
+   * Class applied to the tooltip anchor element.
+   * @option
+   * @type {string}
+   * @default 'has-tip'
+   */
+  triggerClass: 'has-tip',
+  /**
+   * Minimum breakpoint size at which to open the tooltip.
+   * @option
+   * @type {string}
+   * @default 'small'
+   */
+  showOn: 'small',
+  /**
+   * Custom template to be used to generate markup for tooltip.
+   * @option
+   * @type {string}
+   * @default ''
+   */
+  template: '',
+  /**
+   * Text displayed in the tooltip template on open.
+   * @option
+   * @type {string}
+   * @default ''
+   */
+  tipText: '',
+  touchCloseText: 'Tap to close.',
+  /**
+   * Allows the tooltip to remain open if triggered with a click or touch event.
+   * @option
+   * @type {boolean}
+   * @default true
+   */
+  clickOpen: true,
+  /**
+   * DEPRECATED Additional positioning classes, set by the JS
+   * @option
+   * @type {string}
+   * @default ''
+   */
+  positionClass: '',
+  /**
+   * Position of tooltip. Can be left, right, bottom, top, or auto.
+   * @option
+   * @type {string}
+   * @default 'auto'
+   */
+  position: 'auto',
+  /**
+   * Alignment of tooltip relative to anchor. Can be left, right, bottom, top, center, or auto.
+   * @option
+   * @type {string}
+   * @default 'auto'
+   */
+  alignment: 'auto',
+  /**
+   * Allow overlap of container/window. If false, tooltip will first try to
+   * position as defined by data-position and data-alignment, but reposition if
+   * it would cause an overflow.  @option
+   * @type {boolean}
+   * @default false
+   */
+  allowOverlap: false,
+  /**
+   * Allow overlap of only the bottom of the container. This is the most common
+   * behavior for dropdowns, allowing the dropdown to extend the bottom of the
+   * screen but not otherwise influence or break out of the container.
+   * Less common for tooltips.
+   * @option
+   * @type {boolean}
+   * @default false
+   */
+  allowBottomOverlap: false,
+  /**
+   * Distance, in pixels, the template should push away from the anchor on the Y axis.
+   * @option
+   * @type {number}
+   * @default 0
+   */
+  vOffset: 0,
+  /**
+   * Distance, in pixels, the template should push away from the anchor on the X axis
+   * @option
+   * @type {number}
