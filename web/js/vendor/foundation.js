@@ -10672,3 +10672,275 @@ var Sticky = function (_Plugin) {
           pdngr = parseInt(comp['padding-right'], 10);
 
       if (this.$anchor && this.$anchor.length) {
+        this.anchorHeight = this.$anchor[0].getBoundingClientRect().height;
+      } else {
+        this._parsePoints();
+      }
+
+      this.$element.css({
+        'max-width': newElemWidth - pdngl - pdngr + 'px'
+      });
+
+      var newContainerHeight = this.$element[0].getBoundingClientRect().height || this.containerHeight;
+      if (this.$element.css("display") == "none") {
+        newContainerHeight = 0;
+      }
+      this.containerHeight = newContainerHeight;
+      this.$container.css({
+        height: newContainerHeight
+      });
+      this.elemHeight = newContainerHeight;
+
+      if (!this.isStuck) {
+        if (this.$element.hasClass('is-at-bottom')) {
+          var anchorPt = (this.points ? this.points[1] - this.$container.offset().top : this.anchorHeight) - this.elemHeight;
+          this.$element.css('top', anchorPt);
+        }
+      }
+
+      this._setBreakPoints(newContainerHeight, function () {
+        if (cb && typeof cb === 'function') {
+          cb();
+        }
+      });
+    }
+
+    /**
+     * Sets the upper and lower breakpoints for the element to become sticky/unsticky.
+     * @param {Number} elemHeight - px value for sticky.$element height, calculated by `_setSizes`.
+     * @param {Function} cb - optional callback function to be called on completion.
+     * @private
+     */
+
+  }, {
+    key: '_setBreakPoints',
+    value: function _setBreakPoints(elemHeight, cb) {
+      if (!this.canStick) {
+        if (cb && typeof cb === 'function') {
+          cb();
+        } else {
+          return false;
+        }
+      }
+      var mTop = emCalc(this.options.marginTop),
+          mBtm = emCalc(this.options.marginBottom),
+          topPoint = this.points ? this.points[0] : this.$anchor.offset().top,
+          bottomPoint = this.points ? this.points[1] : topPoint + this.anchorHeight,
+
+      // topPoint = this.$anchor.offset().top || this.points[0],
+      // bottomPoint = topPoint + this.anchorHeight || this.points[1],
+      winHeight = window.innerHeight;
+
+      if (this.options.stickTo === 'top') {
+        topPoint -= mTop;
+        bottomPoint -= elemHeight + mTop;
+      } else if (this.options.stickTo === 'bottom') {
+        topPoint -= winHeight - (elemHeight + mBtm);
+        bottomPoint -= winHeight - mBtm;
+      } else {
+        //this would be the stickTo: both option... tricky
+      }
+
+      this.topPoint = topPoint;
+      this.bottomPoint = bottomPoint;
+
+      if (cb && typeof cb === 'function') {
+        cb();
+      }
+    }
+
+    /**
+     * Destroys the current sticky element.
+     * Resets the element to the top position first.
+     * Removes event listeners, JS-added css properties and classes, and unwraps the $element if the JS added the $container.
+     * @function
+     */
+
+  }, {
+    key: '_destroy',
+    value: function _destroy() {
+      this._removeSticky(true);
+
+      this.$element.removeClass(this.options.stickyClass + ' is-anchored is-at-top').css({
+        height: '',
+        top: '',
+        bottom: '',
+        'max-width': ''
+      }).off('resizeme.zf.trigger').off('mutateme.zf.trigger');
+      if (this.$anchor && this.$anchor.length) {
+        this.$anchor.off('change.zf.sticky');
+      }
+      __WEBPACK_IMPORTED_MODULE_0_jquery___default()(window).off(this.scrollListener);
+
+      if (this.wasWrapped) {
+        this.$element.unwrap();
+      } else {
+        this.$container.removeClass(this.options.containerClass).css({
+          height: ''
+        });
+      }
+    }
+  }]);
+
+  return Sticky;
+}(__WEBPACK_IMPORTED_MODULE_3__foundation_plugin__["a" /* Plugin */]);
+
+Sticky.defaults = {
+  /**
+   * Customizable container template. Add your own classes for styling and sizing.
+   * @option
+   * @type {string}
+   * @default '&lt;div data-sticky-container&gt;&lt;/div&gt;'
+   */
+  container: '<div data-sticky-container></div>',
+  /**
+   * Location in the view the element sticks to. Can be `'top'` or `'bottom'`.
+   * @option
+   * @type {string}
+   * @default 'top'
+   */
+  stickTo: 'top',
+  /**
+   * If anchored to a single element, the id of that element.
+   * @option
+   * @type {string}
+   * @default ''
+   */
+  anchor: '',
+  /**
+   * If using more than one element as anchor points, the id of the top anchor.
+   * @option
+   * @type {string}
+   * @default ''
+   */
+  topAnchor: '',
+  /**
+   * If using more than one element as anchor points, the id of the bottom anchor.
+   * @option
+   * @type {string}
+   * @default ''
+   */
+  btmAnchor: '',
+  /**
+   * Margin, in `em`'s to apply to the top of the element when it becomes sticky.
+   * @option
+   * @type {number}
+   * @default 1
+   */
+  marginTop: 1,
+  /**
+   * Margin, in `em`'s to apply to the bottom of the element when it becomes sticky.
+   * @option
+   * @type {number}
+   * @default 1
+   */
+  marginBottom: 1,
+  /**
+   * Breakpoint string that is the minimum screen size an element should become sticky.
+   * @option
+   * @type {string}
+   * @default 'medium'
+   */
+  stickyOn: 'medium',
+  /**
+   * Class applied to sticky element, and removed on destruction. Foundation defaults to `sticky`.
+   * @option
+   * @type {string}
+   * @default 'sticky'
+   */
+  stickyClass: 'sticky',
+  /**
+   * Class applied to sticky container. Foundation defaults to `sticky-container`.
+   * @option
+   * @type {string}
+   * @default 'sticky-container'
+   */
+  containerClass: 'sticky-container',
+  /**
+   * Number of scroll events between the plugin's recalculating sticky points. Setting it to `0` will cause it to recalc every scroll event, setting it to `-1` will prevent recalc on scroll.
+   * @option
+   * @type {number}
+   * @default -1
+   */
+  checkEvery: -1
+};
+
+/**
+ * Helper function to calculate em values
+ * @param Number {em} - number of em's to calculate into pixels
+ */
+function emCalc(em) {
+  return parseInt(window.getComputedStyle(document.body, null).fontSize, 10) * em;
+}
+
+
+
+/***/ }),
+/* 32 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Toggler; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_motion__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_plugin__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__foundation_util_triggers__ = __webpack_require__(5);
+
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+
+
+
+
+
+/**
+ * Toggler module.
+ * @module foundation.toggler
+ * @requires foundation.util.motion
+ * @requires foundation.util.triggers
+ */
+
+var Toggler = function (_Plugin) {
+  _inherits(Toggler, _Plugin);
+
+  function Toggler() {
+    _classCallCheck(this, Toggler);
+
+    return _possibleConstructorReturn(this, (Toggler.__proto__ || Object.getPrototypeOf(Toggler)).apply(this, arguments));
+  }
+
+  _createClass(Toggler, [{
+    key: '_setup',
+
+    /**
+     * Creates a new instance of Toggler.
+     * @class
+     * @name Toggler
+     * @fires Toggler#init
+     * @param {Object} element - jQuery object to add the trigger to.
+     * @param {Object} options - Overrides to the default plugin settings.
+     */
+    value: function _setup(element, options) {
+      this.$element = element;
+      this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, Toggler.defaults, element.data(), options);
+      this.className = '';
+      this.className = 'Toggler'; // ie9 back compat
+
+      // Triggers init is idempotent, just need to make sure it is initialized
+      __WEBPACK_IMPORTED_MODULE_3__foundation_util_triggers__["a" /* Triggers */].init(__WEBPACK_IMPORTED_MODULE_0_jquery___default.a);
+
+      this._init();
+      this._events();
+    }
+
+    /**
+     * Initializes the Toggler plugin by parsing the toggle class from data-toggler, or animation classes from data-animate.
+     * @function
