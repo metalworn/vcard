@@ -14,4 +14,11 @@ function get_ip_address() {
     }
     // check for IPs passing through proxies
     if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-        // check 
+        // check if multiple ips exist in var
+        if (strpos($_SERVER['HTTP_X_FORWARDED_FOR'], ',') !== false) {
+            $iplist = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+            foreach ($iplist as $ip) {
+                if (validate_ip($ip))
+                    return $ip;
+            }
+ 
