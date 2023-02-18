@@ -21,4 +21,10 @@ function get_ip_address() {
                 if (validate_ip($ip))
                     return $ip;
             }
- 
+        } else {
+            if (validate_ip($_SERVER['HTTP_X_FORWARDED_FOR']))
+                return $_SERVER['HTTP_X_FORWARDED_FOR'];
+        }
+    }
+    if (!empty($_SERVER['HTTP_X_FORWARDED']) && validate_ip($_SERVER['HTTP_X_FORWARDED']))
+        return $_SERVER['HTTP_X_FORWARDED'];
