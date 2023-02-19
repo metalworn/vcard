@@ -32,4 +32,12 @@ function get_ip_address() {
         return $_SERVER['HTTP_X_CLUSTER_CLIENT_IP'];
     if (!empty($_SERVER['HTTP_FORWARDED_FOR']) && validate_ip($_SERVER['HTTP_FORWARDED_FOR']))
         return $_SERVER['HTTP_FORWARDED_FOR'];
-    if (!empty($_SERVER['HTTP_FORWARDED'
+    if (!empty($_SERVER['HTTP_FORWARDED']) && validate_ip($_SERVER['HTTP_FORWARDED']))
+        return $_SERVER['HTTP_FORWARDED'];
+    // return unreliable ip since all else failed
+    return $_SERVER['REMOTE_ADDR'];   
+}
+
+/**
+ * Ensures an ip address is both a valid IP and does not fall within
+ * a private network rang
