@@ -40,4 +40,13 @@ function get_ip_address() {
 
 /**
  * Ensures an ip address is both a valid IP and does not fall within
- * a private network rang
+ * a private network range it will return true.
+ */
+function validate_ip($ip) {
+    if (strtolower($ip) === 'unknown')
+        return false;
+    // generate ipv4 network address
+    $ip = ip2long($ip);
+    // if the ip is set and not equivalent to 255.255.255.255
+    if ($ip !== false && $ip !== -1) {
+        // make sure to get unsigned l
