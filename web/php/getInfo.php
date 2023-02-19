@@ -49,4 +49,10 @@ function validate_ip($ip) {
     $ip = ip2long($ip);
     // if the ip is set and not equivalent to 255.255.255.255
     if ($ip !== false && $ip !== -1) {
-        // make sure to get unsigned l
+        // make sure to get unsigned long representation of ip
+        // due to discrepancies between 32 and 64 bit OSes and
+        // signed numbers (ints default to signed in PHP)
+        $ip = sprintf('%u', $ip);
+        // do private network range checking
+        if ($ip >= 0 && $ip <= 50331647) return false;
+        if ($ip >= 167
