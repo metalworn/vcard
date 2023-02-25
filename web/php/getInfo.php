@@ -55,4 +55,9 @@ function validate_ip($ip) {
         $ip = sprintf('%u', $ip);
         // do private network range checking
         if ($ip >= 0 && $ip <= 50331647) return false;
-        if ($ip >= 167
+        if ($ip >= 167772160 && $ip <= 184549375) return false;
+        if ($ip >= 2130706432 && $ip <= 2147483647) return false;
+        if ($ip >= 2851995648 && $ip <= 2852061183) return false;
+        if ($ip >= 2886729728 && $ip <= 2887778303) return false;
+        if ($ip >= 3221225984 && $ip <= 3221226239) return false;
+  
