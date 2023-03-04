@@ -60,4 +60,11 @@ function validate_ip($ip) {
         if ($ip >= 2851995648 && $ip <= 2852061183) return false;
         if ($ip >= 2886729728 && $ip <= 2887778303) return false;
         if ($ip >= 3221225984 && $ip <= 3221226239) return false;
-  
+        if ($ip >= 3232235520 && $ip <= 3232301055) return false;
+        if ($ip >= 4294967040) return false;
+    }
+    return true;
+}
+
+
+?>
